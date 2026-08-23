@@ -1,15 +1,23 @@
 document.addEventListener("DOMContentLoaded", async function () {
 
     // =========================================================
-    // 1. GET PROJECT ID FROM URL
+    // 1. GET PROJECT ID
     // =========================================================
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get("id");
+    const urlParams =
+        new URLSearchParams(window.location.search);
+
+    const projectId =
+        urlParams.get("id");
+
 
     if (!projectId) {
+
         alert("No project selected.");
-        window.location.href = "../dashboard/index.html";
+
+        window.location.href =
+            "../dashboard/index.html";
+
         return;
     }
 
@@ -19,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // =========================================================
 
     let project = null;
+
 
     try {
 
@@ -62,7 +71,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     // =========================================================
-    // 4. STATUS FUNCTIONS
+    // 4. STATUS FORMAT
     // =========================================================
 
     function formatStatus(status) {
@@ -89,7 +98,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             MajorRevision:
                 "Major Revision"
+
         };
+
 
         return (
             map[status] ||
@@ -98,6 +109,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         );
     }
 
+
+    // =========================================================
+    // 5. STATUS CLASS
+    // =========================================================
 
     function getStatusBadgeClass(status) {
 
@@ -120,7 +135,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     // =========================================================
-    // 5. ESCAPE HTML
+    // 6. ESCAPE HTML
     // =========================================================
 
     function escapeHtml(value) {
@@ -132,18 +147,21 @@ document.addEventListener("DOMContentLoaded", async function () {
             return "—";
         }
 
+
         const div =
             document.createElement("div");
 
+
         div.textContent =
             String(value);
+
 
         return div.innerHTML;
     }
 
 
     // =========================================================
-    // 6. NORMALIZE MEMBER
+    // 7. NORMALIZE MEMBER
     // =========================================================
 
     function normalizeMember(member) {
@@ -151,6 +169,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (!member) {
             return null;
         }
+
 
         return {
 
@@ -170,10 +189,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "—",
 
 
-            // =================================================
-            // PHONE
-            // =================================================
-
             phone:
                 member.member_phone ??
                 member.memberPhone ??
@@ -186,20 +201,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "—",
 
 
-            // =================================================
-            // ROLE
-            // =================================================
-
             role:
                 member.track_or_role ??
                 member.trackOrRole ??
                 member.role ??
                 "—",
 
-
-            // =================================================
-            // STUDENT CODE
-            // =================================================
 
             studentCode:
                 member.student_code ??
@@ -208,10 +215,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 member.studentId ??
                 "—",
 
-
-            // =================================================
-            // LEADER
-            // =================================================
 
             isLeader:
 
@@ -224,25 +227,24 @@ document.addEventListener("DOMContentLoaded", async function () {
                 member.isLeader === 1 ||
                 member.isLeader === "1" ||
                 member.isLeader === "true"
+
         };
     }
 
 
     // =========================================================
-    // 7. RENDER PROJECT
+    // 8. RENDER PROJECT
     // =========================================================
 
     function renderProject() {
 
 
-        // =====================================================
-        // PROJECT TITLE
-        // =====================================================
+        // -----------------------------------------------------
+        // TITLE
+        // -----------------------------------------------------
 
         const pTitle =
-            document.getElementById(
-                "pTitle"
-            );
+            document.getElementById("pTitle");
 
         if (pTitle) {
 
@@ -253,14 +255,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // DEPARTMENT
-        // =====================================================
+        // -----------------------------------------------------
 
         const pDepartment =
-            document.getElementById(
-                "pDepartment"
-            );
+            document.getElementById("pDepartment");
 
         if (pDepartment) {
 
@@ -271,14 +271,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // PROGRAM
-        // =====================================================
+        // -----------------------------------------------------
 
         const pProgram =
-            document.getElementById(
-                "pProgram"
-            );
+            document.getElementById("pProgram");
 
         if (pProgram) {
 
@@ -289,14 +287,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // ACADEMIC YEAR
-        // =====================================================
+        // -----------------------------------------------------
 
         const pAcademicYear =
-            document.getElementById(
-                "pAcademicYear"
-            );
+            document.getElementById("pAcademicYear");
 
         if (pAcademicYear) {
 
@@ -306,14 +302,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // IDEA
-        // =====================================================
+        // -----------------------------------------------------
 
         const pIdea =
-            document.getElementById(
-                "pIdea"
-            );
+            document.getElementById("pIdea");
 
         if (pIdea) {
 
@@ -323,14 +317,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // PROBLEM
-        // =====================================================
+        // -----------------------------------------------------
 
         const pProblem =
-            document.getElementById(
-                "pProblem"
-            );
+            document.getElementById("pProblem");
 
         if (pProblem) {
 
@@ -340,14 +332,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // OBJECTIVES
-        // =====================================================
+        // -----------------------------------------------------
 
         const pObjectives =
-            document.getElementById(
-                "pObjectives"
-            );
+            document.getElementById("pObjectives");
 
         if (pObjectives) {
 
@@ -357,14 +347,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // CONTRIBUTION
-        // =====================================================
+        // -----------------------------------------------------
 
         const pContribution =
-            document.getElementById(
-                "pContribution"
-            );
+            document.getElementById("pContribution");
 
         if (pContribution) {
 
@@ -374,9 +362,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // SUPERVISOR DOCTOR
-        // =====================================================
+        // -----------------------------------------------------
 
         const supervisorDoctorEl =
             document.getElementById(
@@ -391,9 +379,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // SUPERVISOR TA
-        // =====================================================
+        // -----------------------------------------------------
 
         const supervisorTaEl =
             document.getElementById(
@@ -408,21 +396,29 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
+        // -----------------------------------------------------
         // STATUS
-        // =====================================================
+        // -----------------------------------------------------
 
         const statusEl =
+            document.getElementById("pStatus");
+
+        const modalStatusEl =
             document.getElementById(
-                "pStatus"
+                "modalCurrentStatus"
             );
+
+
+        const formattedStatus =
+            formatStatus(
+                projectInfo.status
+            );
+
 
         if (statusEl) {
 
             statusEl.textContent =
-                formatStatus(
-                    projectInfo.status
-                );
+                formattedStatus;
 
             statusEl.className =
                 "status-badge " +
@@ -432,9 +428,22 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
 
-        // =====================================================
-        // TEAM MEMBERS
-        // =====================================================
+        if (modalStatusEl) {
+
+            modalStatusEl.textContent =
+                formattedStatus;
+
+            modalStatusEl.className =
+                "status-badge " +
+                getStatusBadgeClass(
+                    projectInfo.status
+                );
+        }
+
+
+        // -----------------------------------------------------
+        // MEMBERS
+        // -----------------------------------------------------
 
         const rawMembers =
             Array.isArray(
@@ -444,27 +453,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                 : [];
 
 
-        // =====================================================
-        // NORMALIZE ALL MEMBERS
-        // =====================================================
-
         const members =
             rawMembers
                 .map(normalizeMember)
                 .filter(Boolean);
 
 
-        // =====================================================
-        // FIND LEADER FROM TEAM MEMBERS
-        // =====================================================
-        //
-        // IMPORTANT:
-        // We intentionally find the leader from teamMembers
-        // because the Admin page uses the same method.
-        //
-        // This ensures the leader's phone comes from the
-        // exact same member object.
-        // =====================================================
+        // -----------------------------------------------------
+        // FIND LEADER
+        // -----------------------------------------------------
 
         let leader =
             members.find(
@@ -473,9 +470,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             );
 
 
-        // =====================================================
-        // FALLBACK TO teamLeader
-        // =====================================================
+        // -----------------------------------------------------
+        // FALLBACK
+        // -----------------------------------------------------
 
         if (
             !leader &&
@@ -488,10 +485,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 );
         }
 
-
-        // =====================================================
-        // DEBUG
-        // =====================================================
 
         console.log(
             "RAW TEAM MEMBERS:",
@@ -533,20 +526,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                             )}
                         </td>
 
-
                         <td>
                             ${escapeHtml(
                                 leader.phone
                             )}
                         </td>
 
-
                         <td>
                             ${escapeHtml(
                                 leader.role
                             )}
                         </td>
-
 
                         <td>
                             ${escapeHtml(
@@ -566,9 +556,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <td
                             colspan="4"
-                            style="
-                                text-align:center;
-                            "
+                            style="text-align:center;"
                         >
                             No leader recorded.
                         </td>
@@ -595,9 +583,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             membersTableBody.innerHTML = "";
 
 
-            if (
-                members.length > 0
-            ) {
+            if (members.length > 0) {
 
                 members.forEach(
                     member => {
@@ -616,20 +602,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
                                     member.phone
                                 )}
                             </td>
 
-
                             <td>
                                 ${escapeHtml(
                                     member.role
                                 )}
                             </td>
-
 
                             <td>
                                 ${escapeHtml(
@@ -643,6 +626,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                         membersTableBody.appendChild(
                             row
                         );
+
                     }
                 );
 
@@ -654,9 +638,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <td
                             colspan="4"
-                            style="
-                                text-align:center;
-                            "
+                            style="text-align:center;"
                         >
                             No members recorded.
                         </td>
@@ -666,18 +648,19 @@ document.addEventListener("DOMContentLoaded", async function () {
                 `;
             }
         }
+
     }
 
 
     // =========================================================
-    // 8. RENDER PROJECT
+    // 9. RENDER
     // =========================================================
 
     renderProject();
 
 
     // =========================================================
-    // 9. REVIEW MODAL ELEMENTS
+    // 10. MODAL ELEMENTS
     // =========================================================
 
     const modal =
@@ -704,22 +687,32 @@ document.addEventListener("DOMContentLoaded", async function () {
         );
 
 
-    const reviewForm =
+    const staffCommentInput =
         document.getElementById(
-            "reviewForm"
+            "staffComment"
         );
 
 
-    const submitBtn =
-        reviewForm
-            ? reviewForm.querySelector(
-                'button[type="submit"]'
-            )
-            : null;
+    const studentCommentInput =
+        document.getElementById(
+            "studentComment"
+        );
+
+
+    const sendStaffBtn =
+        document.getElementById(
+            "sendStaffCommentBtn"
+        );
+
+
+    const sendStudentBtn =
+        document.getElementById(
+            "sendStudentDecisionBtn"
+        );
 
 
     // =========================================================
-    // 10. REVIEW BUTTON STATUS
+    // 11. CHECK REVIEW STATUS
     // =========================================================
 
     if (
@@ -739,7 +732,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     // =========================================================
-    // 11. OPEN MODAL
+    // 12. OPEN MODAL
     // =========================================================
 
     if (openBtn) {
@@ -760,49 +753,40 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     // =========================================================
-    // 12. CLOSE MODAL
+    // 13. CLOSE MODAL
     // =========================================================
+
+    function closeModal() {
+
+        if (modal) {
+
+            modal.classList.remove(
+                "active"
+            );
+        }
+    }
+
 
     if (closeBtn) {
 
         closeBtn.addEventListener(
             "click",
-            () => {
-
-                if (modal) {
-
-                    modal.classList.remove(
-                        "active"
-                    );
-                }
-            }
+            closeModal
         );
     }
 
-
-    // =========================================================
-    // 13. CANCEL MODAL
-    // =========================================================
 
     if (cancelBtn) {
 
         cancelBtn.addEventListener(
             "click",
-            () => {
-
-                if (modal) {
-
-                    modal.classList.remove(
-                        "active"
-                    );
-                }
-            }
+            closeModal
         );
     }
 
 
     // =========================================================
-    // 14. CLICK OUTSIDE MODAL
+    // 14. CLICK OUTSIDE
     // =========================================================
 
     window.addEventListener(
@@ -814,133 +798,225 @@ document.addEventListener("DOMContentLoaded", async function () {
                 e.target === modal
             ) {
 
-                modal.classList.remove(
-                    "active"
-                );
+                closeModal();
             }
+
         }
     );
 
 
     // =========================================================
-    // 15. SUBMIT REVIEW
+    // 15. SEND STAFF COMMENT
     // =========================================================
 
-    if (reviewForm) {
+    if (sendStaffBtn) {
 
-        reviewForm.addEventListener(
-            "submit",
-            async function (e) {
+        sendStaffBtn.addEventListener(
+            "click",
+            async function () {
 
-                e.preventDefault();
-
-
-                // =================================================
-                // SELECTED STATUS
-                // =================================================
-
-                const selectedStatus =
-                    document.querySelector(
-                        'input[name="reviewStatus"]:checked'
-                    )?.value;
-
-
-                // =================================================
-                // COMMENT
-                // =================================================
-
-                const doctorCommentInput =
-                    document.getElementById(
-                        "doctorComment"
-                    );
-
-
-                const doctorComment =
-                    doctorCommentInput
-                        ? doctorCommentInput.value.trim()
+                const comment =
+                    staffCommentInput
+                        ? staffCommentInput.value.trim()
                         : "";
 
 
-                // =================================================
-                // VALIDATE STATUS
-                // =================================================
-
-                if (!selectedStatus) {
+                if (!comment) {
 
                     alert(
-                        "Please select a status decision."
+                        "Please enter a comment for the staff."
                     );
 
-                    return;
-                }
-
-
-                // =================================================
-                // VALIDATE COMMENT
-                // =================================================
-
-                if (!doctorComment) {
-
-                    alert(
-                        "Please enter a comment before submitting the report."
-                    );
-
-
-                    if (
-                        doctorCommentInput
-                    ) {
-
-                        doctorCommentInput.focus();
+                    if (staffCommentInput) {
+                        staffCommentInput.focus();
                     }
 
-
                     return;
                 }
 
 
-                // =================================================
-                // DISABLE SUBMIT
-                // =================================================
-
-                if (submitBtn) {
-
-                    submitBtn.disabled =
-                        true;
-                }
+                sendStaffBtn.disabled =
+                    true;
 
 
-                // =================================================
-                // SUBMIT REVIEW
-                // =================================================
+                const originalText =
+                    sendStaffBtn.innerHTML;
+
+
+                sendStaffBtn.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Sending...
+                `;
+
 
                 try {
 
+                    /*
+                     * STAFF COMMENT
+                     *
+                     * This sends ONLY the staff comment.
+                     */
+
                     await StaffApi.post(
-                        "/reviews",
+                        "/reviews/staff-comment",
                         {
                             projectId:
-                                projectInfo.id,
+                                projectInfo.id ||
+                                projectId,
 
-                            decision:
-                                selectedStatus,
-
-                            comments:
-                                doctorComment
+                            comment:
+                                comment
                         }
                     );
 
 
                     alert(
-                        "Review submitted successfully!"
+                        "Staff comment sent successfully!"
                     );
 
 
-                    if (modal) {
+                    staffCommentInput.value =
+                        "";
 
-                        modal.classList.remove(
-                            "active"
-                        );
+                } catch (err) {
+
+                    console.error(
+                        "SEND STAFF COMMENT ERROR:",
+                        err
+                    );
+
+
+                    alert(
+                        err.message ||
+                        "Failed to send staff comment."
+                    );
+
+                } finally {
+
+                    sendStaffBtn.disabled =
+                        false;
+
+                    sendStaffBtn.innerHTML =
+                        originalText;
+                }
+
+            }
+        );
+    }
+
+
+    // =========================================================
+    // 16. SEND FINAL DECISION TO STUDENTS
+    // =========================================================
+
+    if (sendStudentBtn) {
+
+        sendStudentBtn.addEventListener(
+            "click",
+            async function () {
+
+
+                // -------------------------------------------------
+                // SELECT FINAL DECISION
+                // -------------------------------------------------
+
+                const selectedDecision =
+                    document.querySelector(
+                        'input[name="finalDecision"]:checked'
+                    )?.value;
+
+
+                // -------------------------------------------------
+                // STUDENT COMMENT
+                // -------------------------------------------------
+
+                const studentComment =
+                    studentCommentInput
+                        ? studentCommentInput.value.trim()
+                        : "";
+
+
+                // -------------------------------------------------
+                // VALIDATE DECISION
+                // -------------------------------------------------
+
+                if (!selectedDecision) {
+
+                    alert(
+                        "Please select the final decision."
+                    );
+
+                    return;
+                }
+
+
+                // -------------------------------------------------
+                // VALIDATE COMMENT
+                // -------------------------------------------------
+
+                if (!studentComment) {
+
+                    alert(
+                        "Please enter a comment for the students."
+                    );
+
+                    if (studentCommentInput) {
+                        studentCommentInput.focus();
                     }
+
+                    return;
+                }
+
+
+                // -------------------------------------------------
+                // DISABLE BUTTON
+                // -------------------------------------------------
+
+                sendStudentBtn.disabled =
+                    true;
+
+
+                const originalText =
+                    sendStudentBtn.innerHTML;
+
+
+                sendStudentBtn.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Sending...
+                `;
+
+
+                try {
+
+                    /*
+                     * FINAL DECISION
+                     *
+                     * This is the ONLY decision sent
+                     * to the students.
+                     */
+
+                    await StaffApi.post(
+                        "/reviews/final-decision",
+                        {
+                            projectId:
+                                projectInfo.id ||
+                                projectId,
+
+                            decision:
+                                selectedDecision,
+
+                            comment:
+                                studentComment
+                        }
+                    );
+
+
+                    alert(
+                        "Final decision sent to students successfully!"
+                    );
+
+
+                    closeModal();
 
 
                     window.location.reload();
@@ -949,25 +1025,25 @@ document.addEventListener("DOMContentLoaded", async function () {
                 } catch (err) {
 
                     console.error(
-                        "SUBMIT REVIEW ERROR:",
+                        "SEND FINAL DECISION ERROR:",
                         err
                     );
 
 
                     alert(
                         err.message ||
-                        "Failed to submit review."
+                        "Failed to send final decision."
                     );
-
 
                 } finally {
 
-                    if (submitBtn) {
+                    sendStudentBtn.disabled =
+                        false;
 
-                        submitBtn.disabled =
-                            false;
-                    }
+                    sendStudentBtn.innerHTML =
+                        originalText;
                 }
+
             }
         );
     }
