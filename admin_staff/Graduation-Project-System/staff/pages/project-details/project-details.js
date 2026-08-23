@@ -1,560 +1,162 @@
-document.addEventListener("DOMContentLoaded", function () {
-
-    // =========================================================
-    // PROJECT ID
-    // =========================================================
-
-    const params = new URLSearchParams(window.location.search);
-    const projectId = params.get("id");
+document.addEventListener("DOMContentLoaded", async function () {
+    // 1️⃣ معرفة المشروع المطلوب من الـ URL (مثلاً: ?id=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get("id");
 
     if (!projectId) {
         alert("No project selected.");
-        window.location.href = "../projects/index.html";
+        window.location.href = "../dashboard/index.html";
         return;
     }
 
+    let project = null;
 
-    // =========================================================
-    // ELEMENTS
-    // =========================================================
-
-    const setText = (id, value) => {
-
-        const element = document.getElementById(id);
-
-        if (!element) return;
-
-        if (
-            value !== undefined &&
-            value !== null &&
-            String(value).trim() !== ""
-        ) {
-            element.textContent = value;
-        } else {
-            element.textContent = "—";
-        }
-    };
-
-
-    // =========================================================
-    // STATE
-    // =========================================================
-
-    let currentProject = null;
-    let teamMembers = [];
-
-
-    // =========================================================
-    // LOAD PROJECT
-    // =========================================================
-
-    async function loadProject() {
-
-        try {
-
-            console.log("Loading project:", projectId);
-
-            // -------------------------------------------------
-            // GET PROJECT
-            // -------------------------------------------------
-
-            currentProject = await AdminApi.get(
-                `/projects/${projectId}`
-            );
-
-            console.log(
-                "PROJECT RESPONSE:",
-                currentProject
-            );
-
-
-            if (!currentProject) {
-                throw new Error("Project not found.");
-            }
-
-
-            // -------------------------------------------------
-            // GET TEAM MEMBERS
-            // -------------------------------------------------
-
-            try {
-
-                teamMembers = await AdminApi.get(
-                    `/projects/${currentProject.id}/members`
-                );
-
-                console.log(
-                    "TEAM MEMBERS RESPONSE:",
-                    teamMembers
-                );
-
-                if (!Array.isArray(teamMembers)) {
-                    teamMembers = [];
-                }
-
-            } catch (membersError) {
-
-                console.warn(
-                    "Could not load team members:",
-                    membersError
-                );
-
-                // Try data already returned with project
-
-                if (
-                    Array.isArray(
-                        currentProject.team_members
-                    )
-                ) {
-
-                    teamMembers =
-                        currentProject.team_members;
-
-                } else if (
-                    Array.isArray(
-                        currentProject.members
-                    )
-                ) {
-
-                    teamMembers =
-                        currentProject.members;
-
-                } else {
-
-                    teamMembers = [];
-                }
-            }
-
-
-            // -------------------------------------------------
-            // RENDER
-            // -------------------------------------------------
-
-            renderProjectInfo();
-
-            renderTeamMembers();
-
-            renderStatus();
-
-
-        } catch (error) {
-
-            console.error(
-                "LOAD PROJECT ERROR:",
-                error
-            );
-
-            alert(
-                error.message ||
-                "Could not load this project."
-            );
-        }
+    try {
+        project = await StaffApi.get(`/assignments/my-projects/${projectId}`);
+    } catch (err) {
+        alert(err.message || "Project not found!");
+        window.location.href = "../dashboard/index.html";
+        return;
     }
 
-
-    // =========================================================
-    // RENDER PROJECT INFO
-    // =========================================================
-
-    function renderProjectInfo() {
-
-        // -----------------------------------------------------
-        // TEAM
-        // -----------------------------------------------------
-
-        setText(
-            "teamDepartment",
-            currentProject.department
-        );
-
-        setText(
-            "teamProgram",
-            currentProject.program_name
-        );
-
-        setText(
-            "teamAcademicYear",
-            currentProject.academic_year
-        );
-
-        setText(
-            "teamRegulation",
-            currentProject.regulation
-        );
-
-        setText(
-            "teamSupervisorDoctor",
-            currentProject.supervisor_doctor
-        );
-
-        setText(
-            "teamSupervisorTa",
-            currentProject.supervisor_ta
-        );
-
-
-        // -----------------------------------------------------
-        // PROJECT
-        // -----------------------------------------------------
-
-        setText(
-            "projectTitleAr",
-            currentProject.title_ar
-        );
-
-
-        const titleEn =
-            document.getElementById(
-                "projectTitleEn"
-            );
-
-        if (titleEn) {
-
-            titleEn.textContent =
-                currentProject.title_en
-                    ? `(${currentProject.title_en})`
-                    : "";
-        }
-
-
-        setText(
-            "projectIdea",
-            currentProject.idea
-        );
-
-        setText(
-            "projectProblem",
-            currentProject.problem_definition
-        );
-
-        setText(
-            "projectObjectives",
-            currentProject.objectives
-        );
-
-        setText(
-            "projectContribution",
-            currentProject.expected_contribution
-        );
-    }
-
-
-    // =========================================================
-    // NORMALIZE MEMBER
-    // =========================================================
-
-    function normalizeMember(member) {
-
-        return {
-
-            id:
-                member.id ??
-                member.student_id ??
-                member.studentId ??
-                null,
-
-            name:
-                member.member_name ??
-                member.memberName ??
-                member.full_name ??
-                member.fullName ??
-                member.name ??
-                "—",
-
-            phone:
-                member.member_phone ??
-                member.memberPhone ??
-                member.phone ??
-                "—",
-
-            role:
-                member.track_or_role ??
-                member.trackOrRole ??
-                member.role ??
-                "—",
-
-            studentCode:
-                member.student_code ??
-                member.studentCode ??
-                member.student_id ??
-                member.studentId ??
-                "—",
-
-            isLeader:
-                member.is_leader === true ||
-                member.is_leader === 1 ||
-                member.is_leader === "true" ||
-                member.isLeader === true ||
-                member.isLeader === 1 ||
-                member.isLeader === "true"
-        };
-    }
-
-
-    // =========================================================
-    // ESCAPE HTML
-    // =========================================================
-
-    function escapeHtml(value) {
-
-        if (
-            value === undefined ||
-            value === null
-        ) {
-            return "—";
-        }
-
-        const div =
-            document.createElement("div");
-
-        div.textContent =
-            String(value);
-
-        return div.innerHTML;
-    }
-
-
-    // =========================================================
-    // RENDER TEAM MEMBERS
-    // =========================================================
-
-    function renderTeamMembers() {
-
-        const normalizedMembers =
-            teamMembers.map(normalizeMember);
-
-
-        console.log(
-            "NORMALIZED MEMBERS:",
-            normalizedMembers
-        );
-
-
-        // -----------------------------------------------------
-        // FIND LEADER
-        // -----------------------------------------------------
-
-        const leader =
-            normalizedMembers.find(
-                member => member.isLeader
-            );
-
-
-        // -----------------------------------------------------
-        // MEMBER HTML
-        // -----------------------------------------------------
-
-        function buildMemberCells(member) {
-
-            return `
-                <td class="arabic-name">
-                    ${escapeHtml(member.name)}
-
-                    ${
-                        member.isLeader
-                            ? `
-                                <span class="member-leader-tag">
-                                    Leader
-                                </span>
-                              `
-                            : ""
-                    }
-                </td>
-
-                <td>
-                    ${escapeHtml(member.phone)}
-                </td>
-
-                <td>
-                    ${escapeHtml(member.role)}
-                </td>
-
-                <td>
-                    ${escapeHtml(member.studentCode)}
-                </td>
-            `;
-        }
-
-
-        // -----------------------------------------------------
-        // LEADER TABLE
-        // -----------------------------------------------------
-
-        const leaderBody =
-            document.getElementById(
-                "leaderTableBody"
-            );
-
-        if (leaderBody) {
-
-            if (leader) {
-
-                leaderBody.innerHTML = `
-                    <tr>
-                        ${buildMemberCells(leader)}
-                    </tr>
-                `;
-
-            } else {
-
-                leaderBody.innerHTML = `
-                    <tr>
-                        <td
-                            colspan="4"
-                            style="
-                                text-align:center;
-                                color:#94A3B8;
-                            "
-                        >
-                            No leader recorded.
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-
-        // -----------------------------------------------------
-        // MEMBERS TABLE
-        // -----------------------------------------------------
-
-        const membersBody =
-            document.getElementById(
-                "membersTableBody"
-            );
-
-        if (membersBody) {
-
-            const nonLeaderMembers =
-                normalizedMembers.filter(
-                    member => !member.isLeader
-                );
-
-
-            if (nonLeaderMembers.length > 0) {
-
-                membersBody.innerHTML =
-                    nonLeaderMembers
-                        .map(member => `
-                            <tr>
-                                ${buildMemberCells(member)}
-                            </tr>
-                        `)
-                        .join("");
-
-            } else {
-
-                membersBody.innerHTML = `
-                    <tr>
-                        <td
-                            colspan="4"
-                            style="
-                                text-align:center;
-                                color:#94A3B8;
-                            "
-                        >
-                            No members recorded.
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-    }
-
-
-    // =========================================================
-    // STATUS
-    // =========================================================
+    // The backend returns a nested shape:
+    // { projectInformation, teamInformation, teamLeader, teamMembers, assignment }
+    // — not the flat project row the rest of this file used to assume.
+    const projectInfo = project.projectInformation || {};
+    const teamInfo = project.teamInformation || {};
 
     function formatStatus(status) {
-
-        const statuses = {
-
-            Pending:
-                "Pending",
-
-            UnderReview:
-                "Under Review",
-
-            UnderDecision:
-                "Pending Decision",
-
-            Accepted:
-                "Accepted",
-
-            Rejected:
-                "Rejected",
-
-            MinorRevision:
-                "Minor Revision",
-
-            MajorRevision:
-                "Major Revision"
+        const map = {
+            Pending: "Pending",
+            UnderReview: "Under Review",
+            UnderDecision: "Pending Decision",
+            Accepted: "Accepted",
+            Rejected: "Rejected",
+            MinorRevision: "Minor Revision",
+            MajorRevision: "Major Revision",
         };
-
-        return (
-            statuses[status] ||
-            status ||
-            "Pending"
-        );
+        return map[status] || status || "Pending";
     }
 
-
-    function renderStatus() {
-
-        const status =
-            currentProject.status;
-
-
-        const statusBadge =
-            document.getElementById(
-                "projectStatusBadge"
-            );
-
-
-        const statusText =
-            document.getElementById(
-                "projectStatusText"
-            );
-
-
-        if (statusText) {
-
-            statusText.textContent =
-                formatStatus(status);
-        }
-
-
-        if (statusBadge) {
-
-            statusBadge.classList.remove(
-                "status-under-review",
-                "status-under-decision"
-            );
-
-
-            if (status === "UnderReview") {
-
-                statusBadge.classList.add(
-                    "status-under-review"
-                );
-            }
-
-
-            if (status === "UnderDecision") {
-
-                statusBadge.classList.add(
-                    "status-under-decision"
-                );
-            }
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case "Accepted": return "status-success";
+            case "Rejected": return "status-error";
+            case "MinorRevision":
+            case "MajorRevision": return "status-warning";
+            default: return "status-warning";
         }
     }
 
+    function renderProject() {
+        document.getElementById("pTitle").textContent = projectInfo.titleEn || projectInfo.titleAr || "—";
+        document.getElementById("pDepartment").textContent = teamInfo.department || projectInfo.department || "—";
+        document.getElementById("pProgram").textContent = teamInfo.programName || projectInfo.programName || "—";
+        document.getElementById("pAcademicYear").textContent = projectInfo.academicYear || "—";
+        document.getElementById("pIdea").textContent = projectInfo.idea || "N/A";
+        document.getElementById("pProblem").textContent = projectInfo.problemDefinition || "N/A";
+        document.getElementById("pObjectives").textContent = projectInfo.objectives || "N/A";
+        document.getElementById("pContribution").textContent = projectInfo.expectedContribution || "N/A";
+        const supervisorDoctorEl = document.getElementById("pSupervisorDoctor");
+        if (supervisorDoctorEl) supervisorDoctorEl.textContent = teamInfo.supervisorDoctor || "—";
+        const supervisorTaEl = document.getElementById("pSupervisorTa");
+        if (supervisorTaEl) supervisorTaEl.textContent = teamInfo.supervisorTa || "—";
 
-    // =========================================================
-    // START
-    // =========================================================
+        const statusEl = document.getElementById("pStatus");
+        statusEl.textContent = formatStatus(projectInfo.status);
+        statusEl.className = "status-badge " + getStatusBadgeClass(projectInfo.status);
 
-    loadProject();
+        // The leader is returned as its own object (from the students table),
+        // and teamMembers is the team_members table rows — which also
+        // includes the leader's own row (isLeader: true), so it's excluded
+        // here to avoid listing them twice.
+        const leader = project.teamLeader || null;
+        const members = project.teamMembers || [];
 
+        const leaderTableBody = document.getElementById("pLeaderTableBody");
+        leaderTableBody.innerHTML = leader
+            ? `<tr>
+                <td>${leader.name}</td>
+                <td>${leader.phone || "—"}</td>
+                <td>${leader.role || "—"}</td>
+                <td>${leader.studentCode || "—"}</td>
+               </tr>`
+            : `<tr><td colspan="4" style="text-align:center;">No leader recorded.</td></tr>`;
+
+        const membersTableBody = document.getElementById("pMembersTableBody");
+        membersTableBody.innerHTML = "";
+        members.forEach((member) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${member.name}</td>
+                <td>${member.phone || "—"}</td>
+                <td>${member.role || "—"}</td>
+                <td>${member.studentCode || "—"}</td>
+            `;
+            membersTableBody.appendChild(row);
+        });
+    }
+
+    renderProject();
+
+    // 5️⃣ التعامل مع الـ Modal
+    const modal = document.getElementById("reviewModal");
+    const openBtn = document.getElementById("openReviewModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+    const cancelBtn = document.getElementById("cancelModalBtn");
+    const reviewForm = document.getElementById("reviewForm");
+    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+
+    // Staff can only submit a review while the project is actually
+    // "UnderReview" (the backend enforces this too) — and only once.
+    if (projectInfo.status !== "UnderReview") {
+        openBtn.disabled = true;
+        openBtn.title = "This project isn't open for review right now.";
+    }
+
+    openBtn.addEventListener("click", () => modal.classList.add("active"));
+    closeBtn.addEventListener("click", () => modal.classList.remove("active"));
+    cancelBtn.addEventListener("click", () => modal.classList.remove("active"));
+
+    window.addEventListener("click", function (e) {
+        if (e.target === modal) modal.classList.remove("active");
+    });
+
+    // 6️⃣ حفظ المراجعة عند الـ Submit — POST /api/reviews
+    reviewForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const selectedStatus = document.querySelector('input[name="reviewStatus"]:checked')?.value;
+        const doctorCommentInput = document.getElementById("doctorComment");
+        const doctorComment = doctorCommentInput.value.trim();
+
+        if (!selectedStatus) {
+            alert("Please select a status decision.");
+            return;
+        }
+
+        if (!doctorComment) {
+            alert("Please enter a comment before submitting the report.");
+            doctorCommentInput.focus();
+            return;
+        }
+
+        submitBtn.disabled = true;
+
+        try {
+            await StaffApi.post("/reviews", {
+                projectId: projectInfo.id,
+                decision: selectedStatus,
+                comments: doctorComment,
+            });
+
+            alert("Review submitted successfully!");
+            modal.classList.remove("active");
+            window.location.reload();
+        } catch (err) {
+            alert(err.message || "Failed to submit review.");
+        } finally {
+            submitBtn.disabled = false;
+        }
+    });
 });
