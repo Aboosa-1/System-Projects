@@ -19,9 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. ELEMENTS
   // =========================================================
 
-  const registerBtn =
-    document.getElementById('register-project-btn');
-
   const editBtn =
     document.getElementById('edit-project-btn');
 
@@ -45,15 +42,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     project = await Api.getMyProject();
 
-    console.log(
-      'STUDENT PROJECT:',
-      project
-    );
-
-    console.log(
-      'FINAL ADMIN DECISION:',
-      project?.finalDecision
-    );
+    console.log('=================================');
+    console.log('STUDENT PROJECT');
+    console.log(project);
+    console.log('FINAL DECISION');
+    console.log(project?.finalDecision);
+    console.log('=================================');
 
   } catch (err) {
 
@@ -64,11 +58,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (err.status !== 404) {
 
-      Animations.showToast(
-        err.message ||
-        'Could not load your project.',
-        'error'
-      );
+      if (
+        typeof Animations !== 'undefined' &&
+        Animations.showToast
+      ) {
+        Animations.showToast(
+          err.message ||
+          'Could not load your project.',
+          'error'
+        );
+      }
     }
 
     project = null;
@@ -83,9 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (noProjectSection) {
 
-      noProjectSection.classList.remove(
-        'hidden'
-      );
+      noProjectSection.classList.remove('hidden');
 
       if (
         typeof Animations !== 'undefined' &&
@@ -115,9 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (hasProjectSection) {
 
-    hasProjectSection.classList.remove(
-      'hidden'
-    );
+    hasProjectSection.classList.remove('hidden');
 
     if (
       typeof Animations !== 'undefined' &&
@@ -183,12 +178,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (membersDisplay) {
 
     membersDisplay.textContent =
-      memberCount +
-      (
+      `${memberCount} ${
         memberCount === 1
-          ? ' member'
-          : ' members'
-      );
+          ? 'member'
+          : 'members'
+      }`;
   }
 
 
@@ -203,22 +197,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (dateDisplay) {
 
-    const dateStr =
-      project.created_at
-        ? new Date(
-            project.created_at
-          ).toLocaleDateString(
-            'en-US',
-            {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }
-          )
-        : '-';
+    if (project.created_at) {
 
-    dateDisplay.textContent =
-      dateStr;
+      const date =
+        new Date(project.created_at);
+
+      dateDisplay.textContent =
+        !Number.isNaN(date.getTime())
+          ? date.toLocaleDateString(
+              'en-US',
+              {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }
+            )
+          : '-';
+
+    } else {
+
+      dateDisplay.textContent = '-';
+    }
   }
 
 
@@ -240,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusBadge &&
     statusLabel &&
     typeof App !== 'undefined' &&
-    App.applyStatusBadge
+    typeof App.applyStatusBadge === 'function'
   ) {
 
     App.applyStatusBadge(
@@ -258,7 +257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (
     editBtn &&
     typeof App !== 'undefined' &&
-    App.isEditBlockedStatus &&
+    typeof App.isEditBlockedStatus === 'function' &&
     App.isEditBlockedStatus(
       project.status
     )
@@ -279,54 +278,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     editBtn.addEventListener(
       'click',
       (e) => {
-
         e.preventDefault();
-
       }
     );
   }
 
 
   // =========================================================
-  // 11. FINAL ADMIN DECISION
+  // 11. FINAL ADMIN REVIEW
   // =========================================================
 
-  /*
-   * Backend returns:
-   *
-   * finalDecision: {
-   *   admin_decision,
-   *   admin_comments,
-   *   reviewed_at
-   * }
-   */
-
-  const finalDecision =
-    project.finalDecision || null;
-
-
-  console.log(
-    'FINAL ADMIN DECISION:',
-    finalDecision
-  );
-
-
-  // =========================================================
-  // 12. RENDER FINAL ADMIN REVIEW
-  // =========================================================
-
-  function renderReview(review) {
+  function renderFinalAdminReview(review) {
 
     if (!reviewCard) {
       return;
     }
 
 
+    console.log(
+      'RENDER FINAL ADMIN REVIEW:',
+      review
+    );
+
+
     // -------------------------------------------------------
-    // NO FINAL REVIEW
+    // NO REVIEW
     // -------------------------------------------------------
 
-    if (!review) {
+    if (
+      !review ||
+      typeof review !== 'object'
+    ) {
 
       reviewCard.classList.add(
         'hidden'
@@ -341,10 +323,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const comment =
-      review.admin_comments !== null &&
-      typeof review.admin_comments !== 'undefined'
-        ? String(review.admin_comments).trim()
-        : '';
+      review.admin_comments ??
+      review.adminComments ??
+      '';
 
 
     // -------------------------------------------------------
@@ -352,23 +333,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const decision =
-      review.admin_decision !== null &&
-      typeof review.admin_decision !== 'undefined'
-        ? String(review.admin_decision).trim()
-        : '';
+      review.admin_decision ??
+      review.adminDecision ??
+      '';
 
 
     // -------------------------------------------------------
-    // REVIEW DATE
+    // DATE
     // -------------------------------------------------------
 
-    const reviewDate =
-      review.reviewed_at ||
+    const reviewedAt =
+      review.reviewed_at ??
+      review.reviewedAt ??
       null;
 
 
     // =======================================================
-    // COMMENT ELEMENT
+    // COMMENT
     // =======================================================
 
     const commentEl =
@@ -378,14 +359,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (commentEl) {
 
+      const cleanComment =
+        String(comment).trim();
+
       commentEl.textContent =
-        comment ||
+        cleanComment ||
         'No comment provided.';
     }
 
 
     // =======================================================
-    // DECISION ELEMENT
+    // DECISION
     // =======================================================
 
     const decisionEl =
@@ -426,8 +410,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         '—';
 
 
-      // Remove old classes
-
       decisionEl.classList.remove(
         'review-success',
         'review-danger',
@@ -436,13 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       );
 
 
-      // =====================================================
-      // DECISION STYLE
-      // =====================================================
-
-      if (
-        decision === 'Accepted'
-      ) {
+      if (decision === 'Accepted') {
 
         decisionEl.classList.add(
           'review-success'
@@ -476,7 +452,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // =======================================================
-    // REVIEW DATE
+    // DATE
     // =======================================================
 
     const dateEl =
@@ -486,16 +462,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (dateEl) {
 
-      if (reviewDate) {
+      if (reviewedAt) {
 
-        const parsedDate =
-          new Date(reviewDate);
+        const date =
+          new Date(reviewedAt);
 
-        if (!Number.isNaN(parsedDate.getTime())) {
+        if (!Number.isNaN(date.getTime())) {
 
           dateEl.textContent =
             'Reviewed on ' +
-            parsedDate.toLocaleDateString(
+            date.toLocaleDateString(
               'en-US',
               {
                 year: 'numeric',
@@ -526,7 +502,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (
       typeof Animations !== 'undefined' &&
-      Animations.slideUp
+      typeof Animations.slideUp === 'function'
     ) {
 
       Animations.slideUp(
@@ -537,10 +513,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   // =========================================================
-  // 13. RENDER FINAL REVIEW
+  // 12. GET FINAL DECISION
   // =========================================================
 
-  renderReview(
+  const finalDecision =
+    project.finalDecision || null;
+
+
+  // =========================================================
+  // 13. RENDER
+  // =========================================================
+
+  renderFinalAdminReview(
     finalDecision
   );
 
