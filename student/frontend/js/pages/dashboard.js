@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       project
     );
 
+    console.log(
+      'FINAL ADMIN DECISION:',
+      project?.finalDecision
+    );
+
   } catch (err) {
 
     console.error(
@@ -82,23 +87,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         'hidden'
       );
 
-      Animations.slideUp(
-        noProjectSection
-      );
+      if (
+        typeof Animations !== 'undefined' &&
+        Animations.slideUp
+      ) {
+        Animations.slideUp(
+          noProjectSection
+        );
+      }
     }
 
     if (editBtn) {
-
-      editBtn.classList.add(
-        'hidden'
-      );
+      editBtn.classList.add('hidden');
     }
 
     if (reviewCard) {
-
-      reviewCard.classList.add(
-        'hidden'
-      );
+      reviewCard.classList.add('hidden');
     }
 
     return;
@@ -115,9 +119,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       'hidden'
     );
 
-    Animations.slideUp(
-      hasProjectSection
-    );
+    if (
+      typeof Animations !== 'undefined' &&
+      Animations.slideUp
+    ) {
+      Animations.slideUp(
+        hasProjectSection
+      );
+    }
   }
 
 
@@ -279,18 +288,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   // =========================================================
-  // 11. GET FINAL ADMIN DECISION
+  // 11. FINAL ADMIN DECISION
   // =========================================================
-  //
-  // Backend getMyProject() returns:
-  //
-  // finalDecision: {
-  //     admin_decision,
-  //     admin_comments,
-  //     reviewed_at
-  // }
-  //
-  // =========================================================
+
+  /*
+   * Backend returns:
+   *
+   * finalDecision: {
+   *   admin_decision,
+   *   admin_comments,
+   *   reviewed_at
+   * }
+   */
 
   const finalDecision =
     project.finalDecision || null;
@@ -303,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
   // =========================================================
-  // 12. RENDER FINAL REVIEW
+  // 12. RENDER FINAL ADMIN REVIEW
   // =========================================================
 
   function renderReview(review) {
@@ -314,7 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // -------------------------------------------------------
-    // NO REVIEW
+    // NO FINAL REVIEW
     // -------------------------------------------------------
 
     if (!review) {
@@ -332,8 +341,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const comment =
-      review.admin_comments ||
-      '';
+      review.admin_comments !== null &&
+      typeof review.admin_comments !== 'undefined'
+        ? String(review.admin_comments).trim()
+        : '';
 
 
     // -------------------------------------------------------
@@ -341,12 +352,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const decision =
-      review.admin_decision ||
-      '';
+      review.admin_decision !== null &&
+      typeof review.admin_decision !== 'undefined'
+        ? String(review.admin_decision).trim()
+        : '';
 
 
     // -------------------------------------------------------
-    // DATE
+    // REVIEW DATE
     // -------------------------------------------------------
 
     const reviewDate =
@@ -414,6 +427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
       // Remove old classes
+
       decisionEl.classList.remove(
         'review-success',
         'review-danger',
@@ -474,22 +488,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (reviewDate) {
 
-        dateEl.textContent =
-          new Date(
-            reviewDate
-          ).toLocaleDateString(
-            'en-US',
-            {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            }
-          );
+        const parsedDate =
+          new Date(reviewDate);
+
+        if (!Number.isNaN(parsedDate.getTime())) {
+
+          dateEl.textContent =
+            'Reviewed on ' +
+            parsedDate.toLocaleDateString(
+              'en-US',
+              {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }
+            );
+
+        } else {
+
+          dateEl.textContent = '';
+        }
 
       } else {
 
-        dateEl.textContent =
-          '';
+        dateEl.textContent = '';
       }
     }
 
