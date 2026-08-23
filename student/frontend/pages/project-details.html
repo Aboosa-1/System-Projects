@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
   <title>Project Details - Graduation Project Registration System</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-
   <link
     href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet"
@@ -23,10 +21,7 @@
 
 <body>
 
-  <!-- =========================================================
-       APP SHELL
-  ========================================================== -->
-
+  <!-- Shared App Shell -->
   <div
     id="app-shell"
     data-topbar-title="Project Details">
@@ -35,15 +30,11 @@
   <script src="../js/components/layout.js?v=3"></script>
 
 
-  <!-- =========================================================
-       MAIN CONTENT
-  ========================================================== -->
-
   <main class="main-content">
 
-    <!-- =======================================================
-         PAGE HEADER
-    ======================================================== -->
+    <!-- =========================================================
+         PAGE BREADCRUMB
+    ========================================================== -->
 
     <div class="page-breadcrumb">
 
@@ -55,22 +46,21 @@
         stroke="currentColor"
         stroke-width="2">
 
-        <path
-          d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-
-        <polyline
-          points="9 22 9 12 15 12 15 22"/>
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
 
       </svg>
 
-      <span class="crumb-muted">/ View Details</span>
+      <span class="crumb-muted">
+        / View Details
+      </span>
 
     </div>
 
 
-    <!-- =======================================================
-         NO PROJECT STATE
-    ======================================================== -->
+    <!-- =========================================================
+         NO PROJECT
+    ========================================================== -->
 
     <div id="no-project" class="hidden">
 
@@ -88,11 +78,8 @@
                 stroke="currentColor"
                 stroke-width="2">
 
-                <path
-                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-
-                <polyline
-                  points="14 2 14 8 20 8"/>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
 
               </svg>
 
@@ -121,25 +108,28 @@
     </div>
 
 
-    <!-- =======================================================
+    <!-- =========================================================
          PROJECT DETAILS
-    ======================================================== -->
+    ========================================================== -->
 
     <div id="project-content" class="hidden">
+
+
+      <!-- =======================================================
+           TWO COLUMNS
+      ======================================================== -->
 
       <div class="details-columns">
 
 
-        <!-- ===================================================
+        <!-- =====================================================
              LEFT COLUMN
-        ==================================================== -->
+        ====================================================== -->
 
         <div class="details-col">
 
 
-          <!-- =================================================
-               TEAM INFORMATION
-          ================================================== -->
+          <!-- TEAM INFORMATION -->
 
           <div class="card">
 
@@ -253,9 +243,10 @@
           </div>
 
 
-          <!-- =================================================
+
+          <!-- ===================================================
                TEAM LEADER
-          ================================================== -->
+          ==================================================== -->
 
           <div class="card">
 
@@ -278,18 +269,9 @@
                     <tr>
 
                       <th>Name</th>
-
-                      <th>
-                        Role/Specialization
-                      </th>
-
-                      <th>
-                        Phone Number
-                      </th>
-
-                      <th>
-                        Student ID
-                      </th>
+                      <th>Role/Specialization</th>
+                      <th>Phone Number</th>
+                      <th>Student ID</th>
 
                     </tr>
 
@@ -306,9 +288,10 @@
           </div>
 
 
-          <!-- =================================================
+
+          <!-- ===================================================
                TEAM MEMBERS
-          ================================================== -->
+          ==================================================== -->
 
           <div class="card">
 
@@ -337,18 +320,9 @@
                     <tr>
 
                       <th>Name</th>
-
-                      <th>
-                        Role/Specialization
-                      </th>
-
-                      <th>
-                        Phone Number
-                      </th>
-
-                      <th>
-                        Student ID
-                      </th>
+                      <th>Role/Specialization</th>
+                      <th>Phone Number</th>
+                      <th>Student ID</th>
 
                     </tr>
 
@@ -368,16 +342,15 @@
         </div>
 
 
-        <!-- ===================================================
+
+        <!-- =====================================================
              RIGHT COLUMN
-        ==================================================== -->
+        ====================================================== -->
 
         <div class="details-col">
 
 
-          <!-- =================================================
-               PROJECT INFORMATION
-          ================================================== -->
+          <!-- PROJECT INFORMATION -->
 
           <div class="card details-col-fill">
 
@@ -387,17 +360,7 @@
                 Project Information
               </span>
 
-              <span
-                class="badge"
-                id="project-status-badge">
-
-                <span class="status-dot"></span>
-
-                <span id="project-status-label">
-                  Pending Review
-                </span>
-
-              </span>
+              <!-- STATUS REMOVED FROM HERE -->
 
             </div>
 
@@ -421,10 +384,11 @@
               </div>
 
 
+
               <div class="detail-item section-mb-lg">
 
                 <div class="detail-label">
-                  Scientific Project title ( English)
+                  Scientific Project title (English)
                 </div>
 
                 <div
@@ -436,10 +400,11 @@
               </div>
 
 
+
               <div class="detail-item section-mb-lg">
 
                 <div class="detail-label">
-                  Project idea
+                  Project Idea
                 </div>
 
                 <div
@@ -451,10 +416,11 @@
               </div>
 
 
+
               <div class="detail-item section-mb-lg">
 
                 <div class="detail-label">
-                  Problem definition
+                  Problem Definition
                 </div>
 
                 <div
@@ -464,6 +430,7 @@
                 </div>
 
               </div>
+
 
 
               <div class="detail-item section-mb-lg">
@@ -481,10 +448,11 @@
               </div>
 
 
+
               <div class="detail-item">
 
                 <div class="detail-label">
-                  Expected contribution
+                  Expected Contribution
                 </div>
 
                 <div
@@ -501,28 +469,206 @@
           </div>
 
 
+        </div>
+
+      </div>
+
+
+
+      <!-- =======================================================
+           PROJECT REVIEW & DECISION
+           NEW CARD
+      ======================================================== -->
+
+      <div class="card project-review-card">
+
+        <div class="card-header project-review-header">
+
+          <div>
+
+            <span class="card-title">
+              Project Review & Decision
+            </span>
+
+            <p class="project-review-subtitle">
+              Review feedback and final decision
+            </p>
+
+          </div>
+
+
+          <!-- CURRENT PROJECT STATUS -->
+
+          <div
+            class="project-review-status"
+            id="project-review-status">
+
+            <span
+              class="status-dot"
+              id="project-review-status-dot">
+            </span>
+
+            <span id="project-review-status-label">
+              Pending Review
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+
           <!-- =================================================
-               PROJECT REVIEW
+               STAFF REVIEWS
           ================================================== -->
 
-          <div class="card">
+          <div
+            id="staff-reviews-section"
+            class="review-section">
 
-            <div class="card-header">
+            <div class="review-section-title">
 
-              <span class="card-title">
-                Project Review
+              <span class="review-section-icon">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+
+                  <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+
+                </svg>
+
+              </span>
+
+              <span>
+                Staff Reviews
               </span>
 
             </div>
 
 
-            <div class="card-body">
+            <div
+              id="reviews-list"
+              class="reviews-list">
 
-              <div id="reviews-container">
+              <!-- Reviews inserted by JS -->
 
-                <!-- Reviews are loaded dynamically -->
+            </div>
+
+          </div>
+
+
+
+          <!-- =================================================
+               ADMIN FINAL DECISION
+          ================================================== -->
+
+          <div
+            id="final-decision-section"
+            class="final-decision-section hidden">
+
+            <div class="review-section-title">
+
+              <span class="review-section-icon">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+
+                  <path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"/>
+                  <path d="M9 12l2 2 4-4"/>
+
+                </svg>
+
+              </span>
+
+              <span>
+                Final Decision
+              </span>
+
+            </div>
+
+
+            <div class="final-decision-box">
+
+              <div class="final-decision-main">
+
+                <span class="final-decision-label">
+                  Decision
+                </span>
+
+                <span
+                  id="final-decision-value"
+                  class="final-decision-value">
+                  -
+                </span>
 
               </div>
+
+
+              <div
+                id="final-decision-comments-wrapper"
+                class="final-decision-comments-wrapper">
+
+                <div class="final-decision-label">
+                  Admin Comments
+                </div>
+
+                <div
+                  id="final-decision-comments"
+                  class="final-decision-comments">
+                  -
+                </div>
+
+              </div>
+
+
+              <div
+                id="final-decision-date"
+                class="final-decision-date">
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- EMPTY REVIEW STATE -->
+
+          <div
+            id="no-review-state"
+            class="review-empty-state">
+
+            <div class="review-empty-icon">
+
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+
+                <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+
+              </svg>
+
+            </div>
+
+            <div>
+
+              <strong>
+                No review yet
+              </strong>
+
+              <p>
+                Your project has not received any review feedback yet.
+              </p>
 
             </div>
 
@@ -534,9 +680,10 @@
       </div>
 
 
-      <!-- =====================================================
+
+      <!-- =======================================================
            BACK BUTTON
-      ====================================================== -->
+      ======================================================== -->
 
       <div class="pd-back-row pd-back-row-center">
 
@@ -551,9 +698,8 @@
       </div>
 
 
-      <!-- =====================================================
-           FOOTER
-      ====================================================== -->
+
+      <!-- FOOTER -->
 
       <div class="page-footer-note">
 
@@ -569,6 +715,7 @@
   </main>
 
 
+
   <!-- =========================================================
        LOGOUT MODAL
   ========================================================== -->
@@ -578,7 +725,6 @@
     id="logout-modal">
 
     <div class="modal">
-
 
       <div class="modal-icon modal-icon-danger">
 
@@ -590,58 +736,42 @@
           stroke="#DC2626"
           stroke-width="2">
 
-          <path
-            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-
-          <polyline
-            points="16 17 21 12 16 7"/>
-
-          <line
-            x1="21"
-            y1="12"
-            x2="9"
-            y2="12"/>
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
 
         </svg>
 
       </div>
 
-
       <h3 class="modal-title">
         Logout
       </h3>
 
-
       <p class="modal-body">
         Are you sure?
       </p>
-
 
       <div class="modal-actions">
 
         <button
           class="btn btn-danger"
           id="confirm-logout">
-
           Logout
-
         </button>
-
 
         <button
           class="btn btn-secondary"
           id="cancel-logout">
-
           Cancel
-
         </button>
 
       </div>
 
-
     </div>
 
   </div>
+
 
 
   <!-- =========================================================
@@ -649,19 +779,12 @@
   ========================================================== -->
 
   <script src="/api/runtime-config.js"></script>
-
   <script src="../js/config.js?v=3"></script>
-
   <script src="../js/storage.js?v=3"></script>
-
   <script src="../js/api.js?v=3"></script>
-
   <script src="../js/animations.js?v=3"></script>
-
   <script src="../js/main.js?v=3"></script>
-
-  <script src="../js/pages/project-details.js?v=3"></script>
+  <script src="../js/pages/project-details.js?v=4"></script>
 
 </body>
-
 </html>
