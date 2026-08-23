@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    // 1️⃣ معرفة المشروع المطلوب من الـ URL (مثلاً: ?id=1)
+    // =========================================================
+    // 1. GET PROJECT ID FROM URL
+    // =========================================================
+
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get("id");
 
@@ -9,21 +12,34 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
+    // =========================================================
+    // 2. LOAD PROJECT
+    // =========================================================
+
     let project = null;
 
     try {
-        project = await StaffApi.get(`/assignments/my-projects/${projectId}`);
+        project = await StaffApi.get(
+            `/assignments/my-projects/${projectId}`
+        );
     } catch (err) {
+        console.error("LOAD PROJECT ERROR:", err);
+
         alert(err.message || "Project not found!");
         window.location.href = "../dashboard/index.html";
         return;
     }
 
-    // The backend returns a nested shape:
-    // { projectInformation, teamInformation, teamLeader, teamMembers, assignment }
-    // — not the flat project row the rest of this file used to assume.
+    // =========================================================
+    // 3. PROJECT DATA
+    // =========================================================
+
     const projectInfo = project.projectInformation || {};
     const teamInfo = project.teamInformation || {};
+
+    // =========================================================
+    // 4. STATUS FUNCTIONS
+    // =========================================================
 
     function formatStatus(status) {
         const map = {
@@ -35,128 +51,591 @@ document.addEventListener("DOMContentLoaded", async function () {
             MinorRevision: "Minor Revision",
             MajorRevision: "Major Revision",
         };
+
         return map[status] || status || "Pending";
     }
 
     function getStatusBadgeClass(status) {
         switch (status) {
-            case "Accepted": return "status-success";
-            case "Rejected": return "status-error";
+            case "Accepted":
+                return "status-success";
+
+            case "Rejected":
+                return "status-error";
+
             case "MinorRevision":
-            case "MajorRevision": return "status-warning";
-            default: return "status-warning";
+            case "MajorRevision":
+                return "status-warning";
+
+            default:
+                return "status-warning";
         }
     }
 
-    function renderProject() {
-        document.getElementById("pTitle").textContent = projectInfo.titleEn || projectInfo.titleAr || "—";
-        document.getElementById("pDepartment").textContent = teamInfo.department || projectInfo.department || "—";
-        document.getElementById("pProgram").textContent = teamInfo.programName || projectInfo.programName || "—";
-        document.getElementById("pAcademicYear").textContent = projectInfo.academicYear || "—";
-        document.getElementById("pIdea").textContent = projectInfo.idea || "N/A";
-        document.getElementById("pProblem").textContent = projectInfo.problemDefinition || "N/A";
-        document.getElementById("pObjectives").textContent = projectInfo.objectives || "N/A";
-        document.getElementById("pContribution").textContent = projectInfo.expectedContribution || "N/A";
-        const supervisorDoctorEl = document.getElementById("pSupervisorDoctor");
-        if (supervisorDoctorEl) supervisorDoctorEl.textContent = teamInfo.supervisorDoctor || "—";
-        const supervisorTaEl = document.getElementById("pSupervisorTa");
-        if (supervisorTaEl) supervisorTaEl.textContent = teamInfo.supervisorTa || "—";
+    // =========================================================
+    // 5. ESCAPE HTML
+    // =========================================================
+    // Prevent HTML injection when displaying API data.
+    // =========================================================
 
-        const statusEl = document.getElementById("pStatus");
-        statusEl.textContent = formatStatus(projectInfo.status);
-        statusEl.className = "status-badge " + getStatusBadgeClass(projectInfo.status);
+    function escapeHtml(value) {
+        if (value === undefined || value === null) {
+            return "—";
+        }
 
-        // The leader is returned as its own object (from the students table),
-        // and teamMembers is the team_members table rows — which also
-        // includes the leader's own row (isLeader: true), so it's excluded
-        // here to avoid listing them twice.
-        const leader = project.teamLeader || null;
-        const members = project.teamMembers || [];
+        const div = document.createElement("div");
+        div.textContent = String(value);
 
-        const leaderTableBody = document.getElementById("pLeaderTableBody");
-        leaderTableBody.innerHTML = leader
-            ? `<tr>
-                <td>${leader.name}</td>
-                <td>${leader.phone || "—"}</td>
-                <td>${leader.role || "—"}</td>
-                <td>${leader.studentCode || "—"}</td>
-               </tr>`
-            : `<tr><td colspan="4" style="text-align:center;">No leader recorded.</td></tr>`;
-
-        const membersTableBody = document.getElementById("pMembersTableBody");
-        membersTableBody.innerHTML = "";
-        members.forEach((member) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${member.name}</td>
-                <td>${member.phone || "—"}</td>
-                <td>${member.role || "—"}</td>
-                <td>${member.studentCode || "—"}</td>
-            `;
-            membersTableBody.appendChild(row);
-        });
+        return div.innerHTML;
     }
+
+    // =========================================================
+    // 6. NORMALIZE MEMBER DATA
+    // =========================================================
+    // Supports all possible backend field names.
+    // Especially PHONE NUMBER.
+    // =========================================================
+
+    function normalizeMember(member) {
+        if (!member) {
+            return null;
+        }
+
+        return {
+            id:
+                member.id ??
+                member.student_id ??
+                member.studentId ??
+                null,
+
+            name:
+                member.member_name ??
+                member.memberName ??
+                member.full_name ??
+                member.fullName ??
+                member.name ??
+                "—",
+
+            phone:
+                member.member_phone ??
+                member.memberPhone ??
+                member.phone ??
+                member.phone_number ??
+                member.phoneNumber ??
+                member.mobile ??
+                member.mobile_number ??
+                member.mobileNumber ??
+                "—",
+
+            role:
+                member.track_or_role ??
+                member.trackOrRole ??
+                member.role ??
+                "—",
+
+            studentCode:
+                member.student_code ??
+                member.studentCode ??
+                member.student_id ??
+                member.studentId ??
+                "—",
+
+            isLeader:
+                member.is_leader === true ||
+                member.is_leader === 1 ||
+                member.is_leader === "1" ||
+                member.is_leader === "true" ||
+                member.isLeader === true ||
+                member.isLeader === 1 ||
+                member.isLeader === "1" ||
+                member.isLeader === "true"
+        };
+    }
+
+    // =========================================================
+    // 7. RENDER PROJECT
+    // =========================================================
+
+    function renderProject() {
+        // -----------------------------------------------------
+        // PROJECT INFORMATION
+        // -----------------------------------------------------
+
+        const pTitle = document.getElementById("pTitle");
+        if (pTitle) {
+            pTitle.textContent =
+                projectInfo.titleEn ||
+                projectInfo.titleAr ||
+                "—";
+        }
+
+        const pDepartment = document.getElementById("pDepartment");
+        if (pDepartment) {
+            pDepartment.textContent =
+                teamInfo.department ||
+                projectInfo.department ||
+                "—";
+        }
+
+        const pProgram = document.getElementById("pProgram");
+        if (pProgram) {
+            pProgram.textContent =
+                teamInfo.programName ||
+                projectInfo.programName ||
+                "—";
+        }
+
+        const pAcademicYear =
+            document.getElementById("pAcademicYear");
+
+        if (pAcademicYear) {
+            pAcademicYear.textContent =
+                projectInfo.academicYear || "—";
+        }
+
+        const pIdea = document.getElementById("pIdea");
+        if (pIdea) {
+            pIdea.textContent =
+                projectInfo.idea || "N/A";
+        }
+
+        const pProblem = document.getElementById("pProblem");
+        if (pProblem) {
+            pProblem.textContent =
+                projectInfo.problemDefinition || "N/A";
+        }
+
+        const pObjectives =
+            document.getElementById("pObjectives");
+
+        if (pObjectives) {
+            pObjectives.textContent =
+                projectInfo.objectives || "N/A";
+        }
+
+        const pContribution =
+            document.getElementById("pContribution");
+
+        if (pContribution) {
+            pContribution.textContent =
+                projectInfo.expectedContribution || "N/A";
+        }
+
+        // -----------------------------------------------------
+        // SUPERVISORS
+        // -----------------------------------------------------
+
+        const supervisorDoctorEl =
+            document.getElementById("pSupervisorDoctor");
+
+        if (supervisorDoctorEl) {
+            supervisorDoctorEl.textContent =
+                teamInfo.supervisorDoctor || "—";
+        }
+
+        const supervisorTaEl =
+            document.getElementById("pSupervisorTa");
+
+        if (supervisorTaEl) {
+            supervisorTaEl.textContent =
+                teamInfo.supervisorTa || "—";
+        }
+
+        // -----------------------------------------------------
+        // STATUS
+        // -----------------------------------------------------
+
+        const statusEl =
+            document.getElementById("pStatus");
+
+        if (statusEl) {
+            statusEl.textContent =
+                formatStatus(projectInfo.status);
+
+            statusEl.className =
+                "status-badge " +
+                getStatusBadgeClass(projectInfo.status);
+        }
+
+        // =====================================================
+        // TEAM DATA
+        // =====================================================
+
+        const rawLeader =
+            project.teamLeader || null;
+
+        const rawMembers =
+            Array.isArray(project.teamMembers)
+                ? project.teamMembers
+                : [];
+
+        // -----------------------------------------------------
+        // NORMALIZE LEADER
+        // -----------------------------------------------------
+
+        const leader =
+            normalizeMember(rawLeader);
+
+        // -----------------------------------------------------
+        // NORMALIZE MEMBERS
+        // -----------------------------------------------------
+
+        const members =
+            rawMembers
+                .map(normalizeMember)
+                .filter(Boolean);
+
+        // =====================================================
+        // DEBUG
+        // =====================================================
+
+        console.log(
+            "STAFF FULL PROJECT RESPONSE:",
+            project
+        );
+
+        console.log(
+            "STAFF RAW LEADER:",
+            rawLeader
+        );
+
+        console.log(
+            "STAFF RAW MEMBERS:",
+            rawMembers
+        );
+
+        console.log(
+            "STAFF NORMALIZED LEADER:",
+            leader
+        );
+
+        console.log(
+            "STAFF NORMALIZED MEMBERS:",
+            members
+        );
+
+        // =====================================================
+        // LEADER TABLE
+        // =====================================================
+
+        const leaderTableBody =
+            document.getElementById(
+                "pLeaderTableBody"
+            );
+
+        if (leaderTableBody) {
+            if (leader) {
+                leaderTableBody.innerHTML = `
+                    <tr>
+                        <td>
+                            ${escapeHtml(leader.name)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(leader.phone)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(leader.role)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(leader.studentCode)}
+                        </td>
+                    </tr>
+                `;
+            } else {
+                leaderTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            style="text-align:center;"
+                        >
+                            No leader recorded.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // =====================================================
+        // MEMBERS TABLE
+        // =====================================================
+
+        const membersTableBody =
+            document.getElementById(
+                "pMembersTableBody"
+            );
+
+        if (membersTableBody) {
+            membersTableBody.innerHTML = "";
+
+            if (members.length > 0) {
+                members.forEach((member) => {
+                    const row =
+                        document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>
+                            ${escapeHtml(member.name)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(member.phone)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(member.role)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(member.studentCode)}
+                        </td>
+                    `;
+
+                    membersTableBody.appendChild(row);
+                });
+            } else {
+                membersTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            style="text-align:center;"
+                        >
+                            No members recorded.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    // =========================================================
+    // 8. RENDER PROJECT
+    // =========================================================
 
     renderProject();
 
-    // 5️⃣ التعامل مع الـ Modal
-    const modal = document.getElementById("reviewModal");
-    const openBtn = document.getElementById("openReviewModalBtn");
-    const closeBtn = document.getElementById("closeModalBtn");
-    const cancelBtn = document.getElementById("cancelModalBtn");
-    const reviewForm = document.getElementById("reviewForm");
-    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+    // =========================================================
+    // 9. REVIEW MODAL
+    // =========================================================
 
-    // Staff can only submit a review while the project is actually
-    // "UnderReview" (the backend enforces this too) — and only once.
-    if (projectInfo.status !== "UnderReview") {
-        openBtn.disabled = true;
-        openBtn.title = "This project isn't open for review right now.";
+    const modal =
+        document.getElementById("reviewModal");
+
+    const openBtn =
+        document.getElementById(
+            "openReviewModalBtn"
+        );
+
+    const closeBtn =
+        document.getElementById(
+            "closeModalBtn"
+        );
+
+    const cancelBtn =
+        document.getElementById(
+            "cancelModalBtn"
+        );
+
+    const reviewForm =
+        document.getElementById(
+            "reviewForm"
+        );
+
+    const submitBtn =
+        reviewForm
+            ? reviewForm.querySelector(
+                'button[type="submit"]'
+            )
+            : null;
+
+    // =========================================================
+    // 10. CHECK PROJECT STATUS
+    // =========================================================
+
+    if (
+        projectInfo.status !==
+        "UnderReview"
+    ) {
+        if (openBtn) {
+            openBtn.disabled = true;
+
+            openBtn.title =
+                "This project isn't open for review right now.";
+        }
     }
 
-    openBtn.addEventListener("click", () => modal.classList.add("active"));
-    closeBtn.addEventListener("click", () => modal.classList.remove("active"));
-    cancelBtn.addEventListener("click", () => modal.classList.remove("active"));
+    // =========================================================
+    // 11. OPEN MODAL
+    // =========================================================
 
-    window.addEventListener("click", function (e) {
-        if (e.target === modal) modal.classList.remove("active");
-    });
+    if (openBtn) {
+        openBtn.addEventListener(
+            "click",
+            () => {
+                if (modal) {
+                    modal.classList.add("active");
+                }
+            }
+        );
+    }
 
-    // 6️⃣ حفظ المراجعة عند الـ Submit — POST /api/reviews
-    reviewForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
+    // =========================================================
+    // 12. CLOSE MODAL
+    // =========================================================
 
-        const selectedStatus = document.querySelector('input[name="reviewStatus"]:checked')?.value;
-        const doctorCommentInput = document.getElementById("doctorComment");
-        const doctorComment = doctorCommentInput.value.trim();
+    if (closeBtn) {
+        closeBtn.addEventListener(
+            "click",
+            () => {
+                if (modal) {
+                    modal.classList.remove("active");
+                }
+            }
+        );
+    }
 
-        if (!selectedStatus) {
-            alert("Please select a status decision.");
-            return;
+    // =========================================================
+    // 13. CANCEL MODAL
+    // =========================================================
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener(
+            "click",
+            () => {
+                if (modal) {
+                    modal.classList.remove("active");
+                }
+            }
+        );
+    }
+
+    // =========================================================
+    // 14. CLICK OUTSIDE MODAL
+    // =========================================================
+
+    window.addEventListener(
+        "click",
+        function (e) {
+            if (
+                modal &&
+                e.target === modal
+            ) {
+                modal.classList.remove("active");
+            }
         }
+    );
 
-        if (!doctorComment) {
-            alert("Please enter a comment before submitting the report.");
-            doctorCommentInput.focus();
-            return;
-        }
+    // =========================================================
+    // 15. SUBMIT REVIEW
+    // =========================================================
 
-        submitBtn.disabled = true;
+    if (reviewForm) {
+        reviewForm.addEventListener(
+            "submit",
+            async function (e) {
+                e.preventDefault();
 
-        try {
-            await StaffApi.post("/reviews", {
-                projectId: projectInfo.id,
-                decision: selectedStatus,
-                comments: doctorComment,
-            });
+                const selectedStatus =
+                    document.querySelector(
+                        'input[name="reviewStatus"]:checked'
+                    )?.value;
 
-            alert("Review submitted successfully!");
-            modal.classList.remove("active");
-            window.location.reload();
-        } catch (err) {
-            alert(err.message || "Failed to submit review.");
-        } finally {
-            submitBtn.disabled = false;
-        }
-    });
+                const doctorCommentInput =
+                    document.getElementById(
+                        "doctorComment"
+                    );
+
+                const doctorComment =
+                    doctorCommentInput
+                        ? doctorCommentInput.value.trim()
+                        : "";
+
+                // -------------------------------------------------
+                // VALIDATE STATUS
+                // -------------------------------------------------
+
+                if (!selectedStatus) {
+                    alert(
+                        "Please select a status decision."
+                    );
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // VALIDATE COMMENT
+                // -------------------------------------------------
+
+                if (!doctorComment) {
+                    alert(
+                        "Please enter a comment before submitting the report."
+                    );
+
+                    if (doctorCommentInput) {
+                        doctorCommentInput.focus();
+                    }
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // DISABLE SUBMIT
+                // -------------------------------------------------
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+
+                // =================================================
+                // SEND REVIEW
+                // =================================================
+
+                try {
+                    await StaffApi.post(
+                        "/reviews",
+                        {
+                            projectId:
+                                projectInfo.id,
+
+                            decision:
+                                selectedStatus,
+
+                            comments:
+                                doctorComment
+                        }
+                    );
+
+                    alert(
+                        "Review submitted successfully!"
+                    );
+
+                    if (modal) {
+                        modal.classList.remove(
+                            "active"
+                        );
+                    }
+
+                    window.location.reload();
+
+                } catch (err) {
+                    console.error(
+                        "SUBMIT REVIEW ERROR:",
+                        err
+                    );
+
+                    alert(
+                        err.message ||
+                        "Failed to submit review."
+                    );
+
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+                }
+            }
+        );
+    }
 });
