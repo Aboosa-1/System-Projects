@@ -1,0 +1,82 @@
+/* =================== PROJECT SUMMARY CARD =================== */
+.project-summary-card {
+  background: var(--card);
+  border: none;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  max-width: 480px;
+  padding: 32px;
+}
+
+.project-summary-header {
+  background: none;
+  padding: 0 0 24px;
+  color: var(--text);
+}
+
+.project-summary-header h3 {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.project-summary-header p {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.project-summary-body {
+  padding: 0;
+}
+
+.project-info-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: none;
+  font-size: 14px;
+}
+
+.project-info-row:last-child {
+  border-bottom: none;
+}
+
+.project-info-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.project-info-value {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.project-summary-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.reg-closed-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.reg-closed-note svg {
+  width: 13px;
+  height: 13px;
+  stroke: var(--danger);
+  flex-shrink: 0;
+}
+
