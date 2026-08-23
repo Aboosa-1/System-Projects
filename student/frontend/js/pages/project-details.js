@@ -8,27 +8,36 @@
   // =========================================================
 
   function buildMemberRow(member) {
+
     const tr = document.createElement('tr');
 
     const nameCell = document.createElement('td');
     nameCell.textContent = member.name || '-';
 
     if (member.isLeader) {
+
       const tag = document.createElement('span');
+
       tag.className = 'pd-member-leader-tag';
       tag.textContent = 'Leader';
+
       nameCell.append(' ', tag);
     }
+
 
     const roleCell = document.createElement('td');
     roleCell.textContent = member.role || '-';
 
+
     const phoneCell = document.createElement('td');
+
     phoneCell.className = 'member-phone-text';
     phoneCell.textContent = member.phone || '-';
 
+
     const codeCell = document.createElement('td');
     codeCell.textContent = member.studentCode || '-';
+
 
     tr.append(
       nameCell,
@@ -41,453 +50,768 @@
   }
 
 
+
   // =========================================================
-  // BUILD REVIEW CARD
+  // STATUS HELPERS
   // =========================================================
 
-  function buildReviewCard(review) {
-    const card = document.createElement('div');
-    card.className = 'review-card';
+  function getStatusClass(status) {
 
-    // Header
-    const header = document.createElement('div');
-    header.className = 'review-card-header';
+    if (!status) return 'pending';
 
-    const staffName = document.createElement('h4');
-    staffName.className = 'review-staff-name';
-    staffName.textContent = review.staff_name || 'Staff Reviewer';
+    const normalized = String(status)
+      .trim()
+      .toLowerCase();
 
-    const decision = document.createElement('span');
-    decision.className = 'review-decision';
+    if (normalized === 'accepted') {
+      return 'accepted';
+    }
 
-    const decisionValue = review.decision || '-';
-
-    decision.textContent = decisionValue;
-
-    // Try to use existing status styling if available
-    const normalizedDecision = String(decisionValue)
-      .toLowerCase()
-      .replace(/\s+/g, '');
+    if (normalized === 'rejected') {
+      return 'rejected';
+    }
 
     if (
-      normalizedDecision === 'approved' ||
-      normalizedDecision === 'accept' ||
-      normalizedDecision === 'accepted'
+      normalized === 'minorrevision' ||
+      normalized === 'majorrevision'
     ) {
-      decision.classList.add('success');
-    } else if (
-      normalizedDecision === 'rejected' ||
-      normalizedDecision === 'reject'
-    ) {
-      decision.classList.add('danger');
-    } else if (
-      normalizedDecision.includes('revision') ||
-      normalizedDecision.includes('major') ||
-      normalizedDecision.includes('minor')
-    ) {
-      decision.classList.add('warning');
-    } else {
-      decision.classList.add('neutral');
+      return 'revision';
     }
 
-    header.append(
-      staffName,
-      decision
-    );
-
-    // Comments
-    const commentsWrapper = document.createElement('div');
-    commentsWrapper.className = 'review-comments';
-
-    const commentsLabel = document.createElement('span');
-    commentsLabel.className = 'review-comments-label';
-    commentsLabel.textContent = 'Comments';
-
-    const comments = document.createElement('p');
-    comments.textContent =
-      review.comments || 'No comments provided.';
-
-    commentsWrapper.append(
-      commentsLabel,
-      comments
-    );
-
-    // Date
-    const footer = document.createElement('div');
-    footer.className = 'review-card-footer';
-
-    const date = document.createElement('small');
-
-    if (review.reviewed_at) {
-      const dateValue = new Date(review.reviewed_at);
-
-      if (!Number.isNaN(dateValue.getTime())) {
-        date.textContent = dateValue.toLocaleString();
-      } else {
-        date.textContent = review.reviewed_at;
-      }
-    } else {
-      date.textContent = '';
+    if (
+      normalized === 'underreview' ||
+      normalized === 'underdecision'
+    ) {
+      return 'reviewing';
     }
 
-    footer.appendChild(date);
-
-    card.append(
-      header,
-      commentsWrapper,
-      footer
-    );
-
-    return card;
+    return 'pending';
   }
 
 
+
+  function getStatusLabel(status) {
+
+    if (!status) {
+      return 'Pending Review';
+    }
+
+    const normalized = String(status)
+      .trim()
+      .toLowerCase();
+
+    switch (normalized) {
+
+      case 'accepted':
+        return 'Accepted';
+
+      case 'rejected':
+        return 'Rejected';
+
+      case 'minorrevision':
+        return 'Minor Revision';
+
+      case 'majorrevision':
+        return 'Major Revision';
+
+      case 'underreview':
+        return 'Under Review';
+
+      case 'underdecision':
+        return 'Under Decision';
+
+      case 'pending':
+        return 'Pending Review';
+
+      default:
+        return status;
+    }
+  }
+
+
+
   // =========================================================
-  // RENDER REVIEWS
+  // RENDER PROJECT STATUS
   // =========================================================
 
-  function renderReviews(project) {
-    const reviewsContainer =
-      document.getElementById('reviews-container');
+  function renderProjectStatus(status) {
 
-    if (!reviewsContainer) {
+    const statusContainer =
+      document.getElementById('project-review-status');
+
+    const statusLabel =
+      document.getElementById('project-review-status-label');
+
+    if (!statusContainer || !statusLabel) {
       return;
     }
 
-    reviewsContainer.innerHTML = '';
+    const statusClass = getStatusClass(status);
 
-    const reviews = Array.isArray(project.reviews)
-      ? project.reviews
-      : [];
+    statusContainer.className =
+      'project-review-status ' + statusClass;
 
-    // No reviews
-    if (reviews.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'review-empty';
+    statusLabel.textContent =
+      getStatusLabel(status);
+  }
 
-      empty.textContent = 'No staff reviews yet.';
 
-      reviewsContainer.appendChild(empty);
+
+  // =========================================================
+  // RENDER STAFF REVIEWS
+  // =========================================================
+
+  function renderReviews(reviews) {
+
+    const section =
+      document.getElementById('staff-reviews-section');
+
+    const list =
+      document.getElementById('reviews-list');
+
+    const emptyState =
+      document.getElementById('no-review-state');
+
+    if (!section || !list) {
       return;
     }
 
-    // Reviews
-    reviews.forEach((review) => {
-      const reviewCard = buildReviewCard(review);
+    list.innerHTML = '';
 
-      reviewsContainer.appendChild(reviewCard);
+    if (!Array.isArray(reviews) || reviews.length === 0) {
 
-      if (typeof Animations !== 'undefined' &&
-          typeof Animations.slideUp === 'function') {
-        Animations.slideUp(reviewCard, 200);
+      section.classList.add('hidden');
+
+      if (emptyState) {
+        emptyState.classList.remove('hidden');
       }
+
+      return;
+    }
+
+    section.classList.remove('hidden');
+
+    if (emptyState) {
+      emptyState.classList.add('hidden');
+    }
+
+
+    reviews.forEach((review, index) => {
+
+      const reviewCard =
+        document.createElement('div');
+
+      reviewCard.className = 'review-item';
+
+
+      // -----------------------------------------------------
+      // HEADER
+      // -----------------------------------------------------
+
+      const header =
+        document.createElement('div');
+
+      header.className = 'review-item-header';
+
+
+      const reviewerInfo =
+        document.createElement('div');
+
+      reviewerInfo.className =
+        'reviewer-info';
+
+
+      const avatar =
+        document.createElement('div');
+
+      avatar.className =
+        'reviewer-avatar';
+
+      avatar.textContent =
+        getInitials(review.staff_name);
+
+
+      const reviewerText =
+        document.createElement('div');
+
+      reviewerText.className =
+        'reviewer-text';
+
+
+      const reviewerName =
+        document.createElement('div');
+
+      reviewerName.className =
+        'reviewer-name';
+
+      reviewerName.textContent =
+        review.staff_name || 'Staff Reviewer';
+
+
+      const reviewerRole =
+        document.createElement('div');
+
+      reviewerRole.className =
+        'reviewer-role';
+
+      reviewerRole.textContent =
+        'Staff Reviewer';
+
+
+      reviewerText.append(
+        reviewerName,
+        reviewerRole
+      );
+
+
+      reviewerInfo.append(
+        avatar,
+        reviewerText
+      );
+
+
+      // -----------------------------------------------------
+      // DECISION
+      // -----------------------------------------------------
+
+      const decision =
+        document.createElement('span');
+
+      decision.className =
+        'review-decision ' +
+        getStatusClass(review.decision);
+
+      decision.textContent =
+        getStatusLabel(review.decision);
+
+
+      header.append(
+        reviewerInfo,
+        decision
+      );
+
+
+      // -----------------------------------------------------
+      // COMMENTS
+      // -----------------------------------------------------
+
+      const comments =
+        document.createElement('div');
+
+      comments.className =
+        'review-comments';
+
+
+      if (review.comments) {
+
+        comments.textContent =
+          review.comments;
+
+      } else {
+
+        comments.textContent =
+          'No comments provided.';
+
+        comments.classList.add(
+          'review-no-comments'
+        );
+      }
+
+
+      // -----------------------------------------------------
+      // DATE
+      // -----------------------------------------------------
+
+      const footer =
+        document.createElement('div');
+
+      footer.className =
+        'review-item-footer';
+
+
+      const date =
+        document.createElement('span');
+
+      date.className =
+        'review-date';
+
+
+      if (review.reviewed_at) {
+
+        date.textContent =
+          formatReviewDate(review.reviewed_at);
+
+      } else {
+
+        date.textContent =
+          'Review date unavailable';
+      }
+
+
+      footer.appendChild(date);
+
+
+      reviewCard.append(
+        header,
+        comments,
+        footer
+      );
+
+
+      list.appendChild(reviewCard);
+
+
+      if (typeof Animations !== 'undefined') {
+        Animations.slideUp(reviewCard, 250);
+      }
+
     });
   }
+
+
+
+  // =========================================================
+  // RENDER FINAL ADMIN DECISION
+  // =========================================================
+
+  function renderFinalDecision(finalDecision) {
+
+    const section =
+      document.getElementById(
+        'final-decision-section'
+      );
+
+    const value =
+      document.getElementById(
+        'final-decision-value'
+      );
+
+    const commentsWrapper =
+      document.getElementById(
+        'final-decision-comments-wrapper'
+      );
+
+    const comments =
+      document.getElementById(
+        'final-decision-comments'
+      );
+
+    const date =
+      document.getElementById(
+        'final-decision-date'
+      );
+
+
+    if (!section) {
+      return;
+    }
+
+
+    if (
+      !finalDecision ||
+      !finalDecision.admin_decision
+    ) {
+
+      section.classList.add('hidden');
+
+      return;
+    }
+
+
+    section.classList.remove('hidden');
+
+
+    const decision =
+      finalDecision.admin_decision;
+
+
+    value.textContent =
+      getStatusLabel(decision);
+
+
+    value.className =
+      'final-decision-value ' +
+      getStatusClass(decision);
+
+
+    if (finalDecision.admin_comments) {
+
+      commentsWrapper.classList.remove(
+        'hidden'
+      );
+
+      comments.textContent =
+        finalDecision.admin_comments;
+
+    } else {
+
+      commentsWrapper.classList.add(
+        'hidden'
+      );
+    }
+
+
+    if (finalDecision.reviewed_at) {
+
+      date.textContent =
+        'Reviewed on ' +
+        formatReviewDate(
+          finalDecision.reviewed_at
+        );
+
+    } else {
+
+      date.textContent = '';
+    }
+  }
+
+
+
+  // =========================================================
+  // HELPERS
+  // =========================================================
+
+  function getInitials(name) {
+
+    if (!name) {
+      return 'SR';
+    }
+
+    const parts =
+      String(name)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (parts.length === 1) {
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    return (
+      parts[0].charAt(0) +
+      parts[parts.length - 1].charAt(0)
+    ).toUpperCase();
+  }
+
+
+
+  function formatReviewDate(dateValue) {
+
+    try {
+
+      const date =
+        new Date(dateValue);
+
+      if (Number.isNaN(date.getTime())) {
+        return String(dateValue);
+      }
+
+      return date.toLocaleString(
+        'en-US',
+        {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }
+      );
+
+    } catch (error) {
+
+      return String(dateValue);
+    }
+  }
+
 
 
   // =========================================================
   // DOM READY
   // =========================================================
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  document.addEventListener(
+    'DOMContentLoaded',
+    async () => {
 
-    // =======================================================
-    // AUTHENTICATION
-    // =======================================================
+      const token =
+        await Storage.getToken();
 
-    const token = await Storage.getToken();
+      if (!token) {
 
-    if (!token) {
-      window.location.href = 'login.html';
-      return;
-    }
+        window.location.href =
+          'login.html';
 
-
-    // =======================================================
-    // LOAD PROJECT
-    // =======================================================
-
-    let project = null;
-
-    try {
-      project = await Api.getMyProject();
-    } catch (err) {
-
-      if (err.status !== 404) {
-        Animations.showToast(
-          err.message || 'Could not load your project.',
-          'error'
-        );
+        return;
       }
 
-      project = null;
-    }
+
+      // -----------------------------------------------------
+      // GET PROJECT
+      // -----------------------------------------------------
+
+      let project = null;
+
+      try {
+
+        project =
+          await Api.getMyProject();
+
+      } catch (err) {
+
+        if (err.status !== 404) {
+
+          Animations.showToast(
+            err.message ||
+            'Could not load your project.',
+            'error'
+          );
+        }
+
+        project = null;
+      }
 
 
-    // =======================================================
-    // NO PROJECT
-    // =======================================================
+      if (!project) {
 
-    if (!project) {
-      document
-        .getElementById('no-project')
-        .classList.remove('hidden');
+        document
+          .getElementById('no-project')
+          .classList.remove('hidden');
 
-      return;
-    }
+        return;
+      }
 
 
-    // =======================================================
-    // LOAD TEAM MEMBERS
-    // =======================================================
+      // -----------------------------------------------------
+      // GET MEMBERS
+      // -----------------------------------------------------
 
-    let members = [];
+      let members = [];
 
-    try {
+      try {
 
-      members = await Api.getMembers(project.id);
+        members =
+          await Api.getMembers(project.id);
 
-    } catch (err) {
+      } catch (err) {
 
-      Animations.showToast(
-        err.message || 'Could not load team members.',
-        'error'
+        Animations.showToast(
+          err.message ||
+          'Could not load team members.',
+          'error'
+        );
+
+        members = [];
+      }
+
+
+      const normalizedMembers =
+        members.map((m) => ({
+
+          name: m.member_name,
+
+          phone: m.member_phone,
+
+          role: m.track_or_role,
+
+          studentCode: m.student_code,
+
+          isLeader: m.is_leader
+
+        }));
+
+
+      // -----------------------------------------------------
+      // SHOW CONTENT
+      // -----------------------------------------------------
+
+      const projectContent =
+        document.getElementById(
+          'project-content'
+        );
+
+      projectContent.classList.remove(
+        'hidden'
       );
 
-      members = [];
-    }
+      Animations.slideUp(
+        projectContent
+      );
 
 
-    // =======================================================
-    // NORMALIZE MEMBERS
-    // =======================================================
+      // =====================================================
+      // TEAM INFORMATION
+      // =====================================================
 
-    const normalizedMembers = members.map((m) => ({
-      name: m.member_name,
-      phone: m.member_phone,
-      role: m.track_or_role,
-      studentCode: m.student_code,
-      isLeader: m.is_leader
-    }));
-
-
-    // =======================================================
-    // SHOW PROJECT CONTENT
-    // =======================================================
-
-    document
-      .getElementById('project-content')
-      .classList.remove('hidden');
-
-    Animations.slideUp(
-      document.getElementById('project-content')
-    );
-
-
-    // =======================================================
-    // TEAM INFO
-    // =======================================================
-
-    const yearElement =
-      document.getElementById('d-year');
-
-    if (yearElement) {
-      yearElement.textContent =
+      document.getElementById(
+        'd-year'
+      ).textContent =
         project.academic_year || '-';
-    }
 
 
-    const deptElement =
-      document.getElementById('d-dept');
-
-    if (deptElement) {
-      deptElement.textContent =
+      document.getElementById(
+        'd-dept'
+      ).textContent =
         project.department || '-';
-    }
 
 
-    const programElement =
-      document.getElementById('d-program');
-
-    if (programElement) {
-      programElement.textContent =
+      document.getElementById(
+        'd-program'
+      ).textContent =
         project.program_name ||
         (
           project.program_id
             ? String(project.program_id)
             : '-'
         );
-    }
 
 
-    const supervisorElement =
-      document.getElementById('d-supervisor');
-
-    if (supervisorElement) {
-      supervisorElement.textContent =
+      document.getElementById(
+        'd-supervisor'
+      ).textContent =
         project.supervisor_doctor || '-';
-    }
 
 
-    const assistantSupervisorElement =
-      document.getElementById('d-assistant-supervisor');
-
-    if (assistantSupervisorElement) {
-      assistantSupervisorElement.textContent =
+      document.getElementById(
+        'd-assistant-supervisor'
+      ).textContent =
         project.supervisor_ta || '-';
-    }
 
 
-    // =======================================================
-    // PROJECT INFO
-    // =======================================================
 
-    const titleArElement =
-      document.getElementById('d-title-ar');
+      // =====================================================
+      // PROJECT INFORMATION
+      // =====================================================
 
-    if (titleArElement) {
-      titleArElement.textContent =
+      document.getElementById(
+        'd-title-ar'
+      ).textContent =
         project.title_ar || '-';
-    }
 
 
-    const titleEnElement =
-      document.getElementById('d-title-en');
-
-    if (titleEnElement) {
-      titleEnElement.textContent =
+      document.getElementById(
+        'd-title-en'
+      ).textContent =
         project.title_en || '-';
-    }
 
 
-    const regulationElement =
-      document.getElementById('d-regulation');
-
-    if (regulationElement) {
-      regulationElement.textContent =
+      document.getElementById(
+        'd-regulation'
+      ).textContent =
         project.regulation || '-';
-    }
 
 
-    // =======================================================
-    // PROJECT STATUS
-    // =======================================================
+      document.getElementById(
+        'd-idea'
+      ).textContent =
+        project.idea || '-';
 
-    const statusBadge =
-      document.getElementById('project-status-badge');
 
-    const statusLabel =
-      document.getElementById('project-status-label');
+      document.getElementById(
+        'd-problem'
+      ).textContent =
+        project.problem_definition || '-';
 
-    if (
-      typeof App !== 'undefined' &&
-      typeof App.applyStatusBadge === 'function'
-    ) {
-      App.applyStatusBadge(
-        statusBadge,
-        statusLabel,
+
+      document.getElementById(
+        'd-objectives'
+      ).textContent =
+        project.objectives || '-';
+
+
+      document.getElementById(
+        'd-contribution'
+      ).textContent =
+        project.expected_contribution || '-';
+
+
+
+      // =====================================================
+      // PROJECT STATUS
+      // =====================================================
+
+      renderProjectStatus(
         project.status
       );
-    }
 
 
-    // =======================================================
-    // PROJECT DESCRIPTION
-    // =======================================================
 
-    const ideaElement =
-      document.getElementById('d-idea');
+      // =====================================================
+      // TEAM LEADER
+      // =====================================================
 
-    if (ideaElement) {
-      ideaElement.textContent =
-        project.idea || '-';
-    }
+      const leaderRow =
+        document.getElementById(
+          'd-leader-row'
+        );
 
+      const leader =
+        normalizedMembers.find(
+          (m) => m.isLeader
+        );
 
-    const problemElement =
-      document.getElementById('d-problem');
-
-    if (problemElement) {
-      problemElement.textContent =
-        project.problem_definition || '-';
-    }
-
-
-    const objectivesElement =
-      document.getElementById('d-objectives');
-
-    if (objectivesElement) {
-      objectivesElement.textContent =
-        project.objectives || '-';
-    }
-
-
-    const contributionElement =
-      document.getElementById('d-contribution');
-
-    if (contributionElement) {
-      contributionElement.textContent =
-        project.expected_contribution || '-';
-    }
-
-
-    // =======================================================
-    // TEAM LEADER
-    // =======================================================
-
-    const leaderRow =
-      document.getElementById('d-leader-row');
-
-    const leader =
-      normalizedMembers.find(
-        (m) => m.isLeader
-      );
-
-    if (leader && leaderRow) {
 
       leaderRow.innerHTML = '';
 
-      leaderRow.appendChild(
-        buildMemberRow(leader)
-      );
-    }
+
+      if (leader) {
+
+        leaderRow.appendChild(
+          buildMemberRow(leader)
+        );
+      }
 
 
-    // =======================================================
-    // TEAM MEMBERS
-    // =======================================================
 
-    const membersList =
-      document.getElementById('d-members-list');
+      // =====================================================
+      // TEAM MEMBERS
+      // =====================================================
 
-    const membersCount =
-      document.getElementById('d-members-count');
+      const membersList =
+        document.getElementById(
+          'd-members-list'
+        );
 
-    if (membersCount) {
-      membersCount.textContent =
-        normalizedMembers.length;
-    }
-
-    if (membersList) {
 
       membersList.innerHTML = '';
 
-      normalizedMembers.forEach((member) => {
 
-        membersList.appendChild(
-          buildMemberRow(member)
-        );
+      document.getElementById(
+        'd-members-count'
+      ).textContent =
+        normalizedMembers.length;
 
-      });
+
+      normalizedMembers.forEach(
+        (member) => {
+
+          membersList.appendChild(
+            buildMemberRow(member)
+          );
+
+        }
+      );
+
+
+
+      // =====================================================
+      // STAFF REVIEWS
+      // =====================================================
+
+      renderReviews(
+        project.reviews || []
+      );
+
+
+
+      // =====================================================
+      // ADMIN FINAL DECISION
+      // =====================================================
+
+      renderFinalDecision(
+        project.finalDecision
+      );
+
     }
-
-
-    // =======================================================
-    // STAFF REVIEWS
-    // =======================================================
-
-    renderReviews(project);
-
-  });
+  );
 
 })();
