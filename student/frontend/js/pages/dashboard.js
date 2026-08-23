@@ -227,11 +227,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       'project-status-label'
     );
 
-  App.applyStatusBadge(
-    statusBadge,
-    statusLabel,
-    project.status
-  );
+  if (
+    statusBadge &&
+    statusLabel &&
+    typeof App !== 'undefined' &&
+    App.applyStatusBadge
+  ) {
+
+    App.applyStatusBadge(
+      statusBadge,
+      statusLabel,
+      project.status
+    );
+  }
 
 
   // =========================================================
@@ -240,6 +248,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (
     editBtn &&
+    typeof App !== 'undefined' &&
+    App.isEditBlockedStatus &&
     App.isEditBlockedStatus(
       project.status
     )
@@ -260,112 +270,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     editBtn.addEventListener(
       'click',
       (e) => {
+
         e.preventDefault();
+
       }
     );
   }
 
 
   // =========================================================
-  // 11. FIND REVIEW / COMMENT
+  // 11. GET FINAL ADMIN DECISION
   // =========================================================
   //
-  // The backend may return the review using different names.
-  // We check the common structures safely.
+  // Backend getMyProject() returns:
   //
+  // finalDecision: {
+  //     admin_decision,
+  //     admin_comments,
+  //     reviewed_at
+  // }
+  //
+  // =========================================================
 
-  function getLatestReview(project) {
-
-    // -------------------------------------------------------
-    // Direct review
-    // -------------------------------------------------------
-
-    if (
-      project.review &&
-      typeof project.review === 'object'
-    ) {
-
-      return project.review;
-    }
+  const finalDecision =
+    project.finalDecision || null;
 
 
-    // -------------------------------------------------------
-    // Latest review
-    // -------------------------------------------------------
-
-    if (
-      project.latestReview &&
-      typeof project.latestReview === 'object'
-    ) {
-
-      return project.latestReview;
-    }
-
-
-    // -------------------------------------------------------
-    // reviewData
-    // -------------------------------------------------------
-
-    if (
-      project.reviewData &&
-      typeof project.reviewData === 'object'
-    ) {
-
-      return project.reviewData;
-    }
-
-
-    // -------------------------------------------------------
-    // reviews array
-    // -------------------------------------------------------
-
-    if (
-      Array.isArray(project.reviews) &&
-      project.reviews.length > 0
-    ) {
-
-      const reviews =
-        [...project.reviews];
-
-      reviews.sort(
-        (a, b) => {
-
-          const dateA =
-            new Date(
-              a.created_at ||
-              a.createdAt ||
-              a.reviewed_at ||
-              a.reviewedAt ||
-              0
-            ).getTime();
-
-          const dateB =
-            new Date(
-              b.created_at ||
-              b.createdAt ||
-              b.reviewed_at ||
-              b.reviewedAt ||
-              0
-            ).getTime();
-
-          return dateB - dateA;
-        }
-      );
-
-      return reviews[0];
-    }
-
-
-    // -------------------------------------------------------
-    // No review
-    // -------------------------------------------------------
-
-    return null;
-  }
+  console.log(
+    'FINAL ADMIN DECISION:',
+    finalDecision
+  );
 
 
   // =========================================================
-  // 12. RENDER REVIEW
+  // 12. RENDER FINAL REVIEW
   // =========================================================
 
   function renderReview(review) {
@@ -376,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // -------------------------------------------------------
-    // No review
+    // NO REVIEW
     // -------------------------------------------------------
 
     if (!review) {
@@ -394,10 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const comment =
-      review.comments ??
-      review.comment ??
-      review.doctorComment ??
-      review.doctor_comment ??
+      review.admin_comments ||
       '';
 
 
@@ -406,8 +341,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const decision =
-      review.decision ??
-      review.status ??
+      review.admin_decision ||
       '';
 
 
@@ -416,16 +350,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // -------------------------------------------------------
 
     const reviewDate =
-      review.created_at ??
-      review.createdAt ??
-      review.reviewed_at ??
-      review.reviewedAt ??
+      review.reviewed_at ||
       null;
 
 
-    // -------------------------------------------------------
+    // =======================================================
     // COMMENT ELEMENT
-    // -------------------------------------------------------
+    // =======================================================
 
     const commentEl =
       document.getElementById(
@@ -440,9 +371,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // -------------------------------------------------------
+    // =======================================================
     // DECISION ELEMENT
-    // -------------------------------------------------------
+    // =======================================================
 
     const decisionEl =
       document.getElementById(
@@ -475,11 +406,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           'Pending Review'
       };
 
+
       decisionEl.textContent =
         decisionLabels[decision] ||
         decision ||
         '—';
 
+
+      // Remove old classes
       decisionEl.classList.remove(
         'review-success',
         'review-danger',
@@ -487,6 +421,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         'review-primary'
       );
 
+
+      // =====================================================
+      // DECISION STYLE
+      // =====================================================
 
       if (
         decision === 'Accepted'
@@ -523,9 +461,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // -------------------------------------------------------
-    // DATE
-    // -------------------------------------------------------
+    // =======================================================
+    // REVIEW DATE
+    // =======================================================
 
     const dateEl =
       document.getElementById(
@@ -556,36 +494,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // -------------------------------------------------------
+    // =======================================================
     // SHOW CARD
-    // -------------------------------------------------------
+    // =======================================================
 
     reviewCard.classList.remove(
       'hidden'
     );
 
-    Animations.slideUp(
-      reviewCard
-    );
+    if (
+      typeof Animations !== 'undefined' &&
+      Animations.slideUp
+    ) {
+
+      Animations.slideUp(
+        reviewCard
+      );
+    }
   }
 
 
   // =========================================================
-  // 13. RENDER REVIEW
+  // 13. RENDER FINAL REVIEW
   // =========================================================
 
-  const latestReview =
-    getLatestReview(
-      project
-    );
-
-  console.log(
-    'LATEST STUDENT REVIEW:',
-    latestReview
-  );
-
   renderReview(
-    latestReview
+    finalDecision
   );
 
 });
