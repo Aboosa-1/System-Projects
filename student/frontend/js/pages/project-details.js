@@ -1,5 +1,5 @@
 /**
- * Project Details Page Logic
+ * Project Details Page Logic!!
  */
 (function () {
   function buildMemberRow(member) {
