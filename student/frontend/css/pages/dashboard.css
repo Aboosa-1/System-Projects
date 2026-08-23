@@ -1,4 +1,6 @@
+```css
 /* =================== PROJECT SUMMARY CARD =================== */
+
 .project-summary-card {
   background: var(--card);
   border: none;
@@ -7,6 +9,7 @@
   box-shadow: var(--shadow-sm);
   max-width: 480px;
   padding: 32px;
+  margin-bottom: 20px;
 }
 
 .project-summary-header {
@@ -57,11 +60,15 @@
   font-size: 16px;
 }
 
+/* =================== PROJECT ACTIONS =================== */
+
 .project-summary-actions {
   display: flex;
   gap: 12px;
   margin-top: 20px;
 }
+
+/* =================== REGISTRATION CLOSED =================== */
 
 .reg-closed-note {
   display: flex;
@@ -79,3 +86,87 @@
   stroke: var(--danger);
   flex-shrink: 0;
 }
+
+/* =========================================================
+   DOCTOR REVIEW
+   Same visual style as Project Summary
+   ========================================================= */
+
+#doctor-review-card {
+  max-width: 480px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Doctor comment row */
+
+#doctor-review-card .doctor-comment-row {
+  padding-top: 12px;
+  padding-bottom: 16px;
+}
+
+/* Comment text */
+
+#doctor-comment {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Reviewer + date */
+
+#doctor-review-card .doctor-review-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Prevent long reviewer/date values from breaking layout */
+
+#doctor-reviewer,
+#doctor-review-date {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Doctor review hidden state */
+
+#doctor-review-card.hidden {
+  display: none;
+}
+
+/* =================== RESPONSIVE =================== */
+
+@media (max-width: 600px) {
+
+  .project-summary-card {
+    max-width: 100%;
+    padding: 24px;
+  }
+
+  #doctor-review-card {
+    max-width: 100%;
+  }
+
+  .project-summary-actions {
+    flex-direction: column;
+  }
+
+  .project-summary-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+}
+```
