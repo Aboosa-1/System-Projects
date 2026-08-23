@@ -1,5 +1,5 @@
 /* =========================================================
-   DOCTOR REVIEW / ADMIN COMMENT CARD
+   DOCTOR REVIEW / ADMIN FINAL COMMENT CARD
    ========================================================= */
 
 .doctor-review-card {
@@ -9,6 +9,8 @@
   padding: 24px;
   margin-top: 24px;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .doctor-review-card.hidden {
@@ -16,7 +18,9 @@
 }
 
 
-/* Header */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .doctor-review-header {
   display: flex;
@@ -30,6 +34,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .doctor-review-icon {
@@ -61,7 +66,9 @@
 }
 
 
-/* Decision */
+/* =========================================================
+   DECISION
+   ========================================================= */
 
 .review-decision {
   display: inline-flex;
@@ -79,16 +86,46 @@
   font-weight: 800;
 
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 
-/* Body */
+/* =========================================================
+   DECISION COLORS
+   ========================================================= */
+
+.review-success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.review-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.review-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.review-primary {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
 
 .doctor-review-body {
   padding: 18px;
 
   background: var(--background);
   border-radius: 12px;
+
+  border: 1px solid var(--border);
 }
 
 .doctor-review-label {
@@ -98,6 +135,7 @@
   font-weight: 800;
 
   color: var(--text-secondary);
+
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -109,11 +147,14 @@
   line-height: 1.7;
 
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 
-/* Date */
+/* =========================================================
+   DATE
+   ========================================================= */
 
 .doctor-review-date {
   margin-top: 14px;
@@ -125,7 +166,9 @@
 }
 
 
-/* Mobile */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 600px) {
 
@@ -135,6 +178,7 @@
 
   .doctor-review-header {
     align-items: flex-start;
+    flex-direction: column;
   }
 
   .doctor-review-title-wrapper {
@@ -150,9 +194,20 @@
     font-size: 15px;
   }
 
+  .doctor-review-title-wrapper p {
+    font-size: 12px;
+  }
+
   .review-decision {
     font-size: 11px;
     padding: 6px 9px;
   }
 
+  .doctor-review-body {
+    padding: 15px;
+  }
+
+  .doctor-review-comment {
+    font-size: 13px;
+  }
 }
