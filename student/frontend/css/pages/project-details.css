@@ -1,5 +1,4 @@
 /* =================== PROJECT DETAILS LAYOUT =================== */
-
 .details-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -15,10 +14,8 @@
 }
 
 .details-col-fill {
-  height: auto;
+  height: 100%;
 }
-
-/* =================== TEAM INFO =================== */
 
 .team-info-grid {
   display: grid;
@@ -26,210 +23,14 @@
   gap: 20px;
 }
 
-/* =================== MEMBER LEADER TAG =================== */
-
 .pd-member-leader-tag {
-  display: inline-flex;
-  align-items: center;
   background: var(--primary-light);
   color: var(--primary);
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 10px;
   font-size: 10px;
   font-weight: 700;
-  margin-left: 4px;
 }
-
-/* =================== DETAIL ITEMS =================== */
-
-.detail-item {
-  margin-bottom: 18px;
-}
-
-.detail-item:last-child {
-  margin-bottom: 0;
-}
-
-.detail-label {
-  font-size: 13px;
-  color: var(--text);
-  font-weight: 700;
-  margin-bottom: 7px;
-}
-
-.detail-value {
-  font-size: 15px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  line-height: 1.7;
-  word-break: break-word;
-}
-
-/* =================== PROJECT INFORMATION CARD =================== */
-
-.project-information-card {
-  overflow: hidden;
-}
-
-.project-information-card .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.project-information-card .card-body {
-  padding-top: 24px;
-}
-
-.project-information-card .detail-item {
-  padding-bottom: 18px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-
-.project-information-card .detail-item:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-/* =================== REVIEW CARD =================== */
-
-.project-review-card {
-  overflow: hidden;
-}
-
-.project-review-card .card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.review-empty {
-  padding: 28px 20px;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.review-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.review-item {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  background: var(--card);
-}
-
-.review-item-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.review-staff-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.review-date {
-  font-size: 12px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.review-decision {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.review-decision.accepted {
-  background: rgba(16, 185, 129, 0.10);
-  color: #059669;
-}
-
-.review-decision.rejected {
-  background: rgba(239, 68, 68, 0.10);
-  color: #dc2626;
-}
-
-.review-decision.revision {
-  background: rgba(245, 158, 11, 0.10);
-  color: #d97706;
-}
-
-.review-comments {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--background);
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-/* =================== FINAL DECISION =================== */
-
-.final-decision-box {
-  border-radius: var(--radius-md);
-  padding: 18px;
-  border: 1px solid var(--border);
-}
-
-.final-decision-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.final-decision-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.final-decision-status {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.final-decision-status.accepted {
-  background: rgba(16, 185, 129, 0.10);
-  color: #059669;
-}
-
-.final-decision-status.rejected {
-  background: rgba(239, 68, 68, 0.10);
-  color: #dc2626;
-}
-
-.final-decision-comments {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.7;
-}
-
-/* =================== BACK BUTTON =================== */
 
 .pd-back-row {
   margin-top: 20px;
@@ -240,31 +41,20 @@
   text-align: center;
 }
 
-/* =================== RESPONSIVE =================== */
-
-@media (max-width: 900px) {
-  .details-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .details-col-fill {
-    height: auto;
-  }
+.detail-item {
+  margin-bottom: 16px;
 }
 
-@media (max-width: 600px) {
-  .team-info-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
+.detail-label {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
 
-  .review-item-header,
-  .final-decision-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .review-date {
-    white-space: normal;
-  }
+.detail-value {
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.7;
 }
