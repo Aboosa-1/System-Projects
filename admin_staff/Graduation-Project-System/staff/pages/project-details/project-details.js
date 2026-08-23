@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
+
     // =========================================================
     // 1. GET PROJECT ID FROM URL
     // =========================================================
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         return;
     }
 
+
     // =========================================================
     // 2. LOAD PROJECT
     // =========================================================
@@ -19,44 +21,88 @@ document.addEventListener("DOMContentLoaded", async function () {
     let project = null;
 
     try {
+
         project = await StaffApi.get(
             `/assignments/my-projects/${projectId}`
         );
-    } catch (err) {
-        console.error("LOAD PROJECT ERROR:", err);
 
-        alert(err.message || "Project not found!");
-        window.location.href = "../dashboard/index.html";
+        console.log(
+            "STAFF PROJECT RESPONSE:",
+            project
+        );
+
+    } catch (err) {
+
+        console.error(
+            "LOAD PROJECT ERROR:",
+            err
+        );
+
+        alert(
+            err.message ||
+            "Project not found!"
+        );
+
+        window.location.href =
+            "../dashboard/index.html";
+
         return;
     }
+
 
     // =========================================================
     // 3. PROJECT DATA
     // =========================================================
 
-    const projectInfo = project.projectInformation || {};
-    const teamInfo = project.teamInformation || {};
+    const projectInfo =
+        project.projectInformation || {};
+
+    const teamInfo =
+        project.teamInformation || {};
+
 
     // =========================================================
     // 4. STATUS FUNCTIONS
     // =========================================================
 
     function formatStatus(status) {
+
         const map = {
-            Pending: "Pending",
-            UnderReview: "Under Review",
-            UnderDecision: "Pending Decision",
-            Accepted: "Accepted",
-            Rejected: "Rejected",
-            MinorRevision: "Minor Revision",
-            MajorRevision: "Major Revision",
+
+            Pending:
+                "Pending",
+
+            UnderReview:
+                "Under Review",
+
+            UnderDecision:
+                "Pending Decision",
+
+            Accepted:
+                "Accepted",
+
+            Rejected:
+                "Rejected",
+
+            MinorRevision:
+                "Minor Revision",
+
+            MajorRevision:
+                "Major Revision"
         };
 
-        return map[status] || status || "Pending";
+        return (
+            map[status] ||
+            status ||
+            "Pending"
+        );
     }
 
+
     function getStatusBadgeClass(status) {
+
         switch (status) {
+
             case "Accepted":
                 return "status-success";
 
@@ -72,41 +118,48 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+
     // =========================================================
     // 5. ESCAPE HTML
     // =========================================================
-    // Prevent HTML injection when displaying API data.
-    // =========================================================
 
     function escapeHtml(value) {
-        if (value === undefined || value === null) {
+
+        if (
+            value === undefined ||
+            value === null
+        ) {
             return "—";
         }
 
-        const div = document.createElement("div");
-        div.textContent = String(value);
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            String(value);
 
         return div.innerHTML;
     }
 
+
     // =========================================================
-    // 6. NORMALIZE MEMBER DATA
-    // =========================================================
-    // Supports all possible backend field names.
-    // Especially PHONE NUMBER.
+    // 6. NORMALIZE MEMBER
     // =========================================================
 
     function normalizeMember(member) {
+
         if (!member) {
             return null;
         }
 
         return {
+
             id:
                 member.id ??
                 member.student_id ??
                 member.studentId ??
                 null,
+
 
             name:
                 member.member_name ??
@@ -115,6 +168,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                 member.fullName ??
                 member.name ??
                 "—",
+
+
+            // =================================================
+            // PHONE
+            // =================================================
 
             phone:
                 member.member_phone ??
@@ -127,11 +185,21 @@ document.addEventListener("DOMContentLoaded", async function () {
                 member.mobileNumber ??
                 "—",
 
+
+            // =================================================
+            // ROLE
+            // =================================================
+
             role:
                 member.track_or_role ??
                 member.trackOrRole ??
                 member.role ??
                 "—",
+
+
+            // =================================================
+            // STUDENT CODE
+            // =================================================
 
             studentCode:
                 member.student_code ??
@@ -140,11 +208,18 @@ document.addEventListener("DOMContentLoaded", async function () {
                 member.studentId ??
                 "—",
 
+
+            // =================================================
+            // LEADER
+            // =================================================
+
             isLeader:
+
                 member.is_leader === true ||
                 member.is_leader === 1 ||
                 member.is_leader === "1" ||
                 member.is_leader === "true" ||
+
                 member.isLeader === true ||
                 member.isLeader === 1 ||
                 member.isLeader === "1" ||
@@ -152,167 +227,287 @@ document.addEventListener("DOMContentLoaded", async function () {
         };
     }
 
+
     // =========================================================
     // 7. RENDER PROJECT
     // =========================================================
 
     function renderProject() {
-        // -----------------------------------------------------
-        // PROJECT INFORMATION
-        // -----------------------------------------------------
 
-        const pTitle = document.getElementById("pTitle");
+
+        // =====================================================
+        // PROJECT TITLE
+        // =====================================================
+
+        const pTitle =
+            document.getElementById(
+                "pTitle"
+            );
+
         if (pTitle) {
+
             pTitle.textContent =
                 projectInfo.titleEn ||
                 projectInfo.titleAr ||
                 "—";
         }
 
-        const pDepartment = document.getElementById("pDepartment");
+
+        // =====================================================
+        // DEPARTMENT
+        // =====================================================
+
+        const pDepartment =
+            document.getElementById(
+                "pDepartment"
+            );
+
         if (pDepartment) {
+
             pDepartment.textContent =
                 teamInfo.department ||
                 projectInfo.department ||
                 "—";
         }
 
-        const pProgram = document.getElementById("pProgram");
+
+        // =====================================================
+        // PROGRAM
+        // =====================================================
+
+        const pProgram =
+            document.getElementById(
+                "pProgram"
+            );
+
         if (pProgram) {
+
             pProgram.textContent =
                 teamInfo.programName ||
                 projectInfo.programName ||
                 "—";
         }
 
+
+        // =====================================================
+        // ACADEMIC YEAR
+        // =====================================================
+
         const pAcademicYear =
-            document.getElementById("pAcademicYear");
+            document.getElementById(
+                "pAcademicYear"
+            );
 
         if (pAcademicYear) {
+
             pAcademicYear.textContent =
-                projectInfo.academicYear || "—";
+                projectInfo.academicYear ||
+                "—";
         }
 
-        const pIdea = document.getElementById("pIdea");
+
+        // =====================================================
+        // IDEA
+        // =====================================================
+
+        const pIdea =
+            document.getElementById(
+                "pIdea"
+            );
+
         if (pIdea) {
+
             pIdea.textContent =
-                projectInfo.idea || "N/A";
+                projectInfo.idea ||
+                "N/A";
         }
 
-        const pProblem = document.getElementById("pProblem");
+
+        // =====================================================
+        // PROBLEM
+        // =====================================================
+
+        const pProblem =
+            document.getElementById(
+                "pProblem"
+            );
+
         if (pProblem) {
+
             pProblem.textContent =
-                projectInfo.problemDefinition || "N/A";
+                projectInfo.problemDefinition ||
+                "N/A";
         }
+
+
+        // =====================================================
+        // OBJECTIVES
+        // =====================================================
 
         const pObjectives =
-            document.getElementById("pObjectives");
+            document.getElementById(
+                "pObjectives"
+            );
 
         if (pObjectives) {
+
             pObjectives.textContent =
-                projectInfo.objectives || "N/A";
+                projectInfo.objectives ||
+                "N/A";
         }
+
+
+        // =====================================================
+        // CONTRIBUTION
+        // =====================================================
 
         const pContribution =
-            document.getElementById("pContribution");
+            document.getElementById(
+                "pContribution"
+            );
 
         if (pContribution) {
+
             pContribution.textContent =
-                projectInfo.expectedContribution || "N/A";
+                projectInfo.expectedContribution ||
+                "N/A";
         }
 
-        // -----------------------------------------------------
-        // SUPERVISORS
-        // -----------------------------------------------------
+
+        // =====================================================
+        // SUPERVISOR DOCTOR
+        // =====================================================
 
         const supervisorDoctorEl =
-            document.getElementById("pSupervisorDoctor");
+            document.getElementById(
+                "pSupervisorDoctor"
+            );
 
         if (supervisorDoctorEl) {
+
             supervisorDoctorEl.textContent =
-                teamInfo.supervisorDoctor || "—";
+                teamInfo.supervisorDoctor ||
+                "—";
         }
+
+
+        // =====================================================
+        // SUPERVISOR TA
+        // =====================================================
 
         const supervisorTaEl =
-            document.getElementById("pSupervisorTa");
+            document.getElementById(
+                "pSupervisorTa"
+            );
 
         if (supervisorTaEl) {
+
             supervisorTaEl.textContent =
-                teamInfo.supervisorTa || "—";
+                teamInfo.supervisorTa ||
+                "—";
         }
 
-        // -----------------------------------------------------
+
+        // =====================================================
         // STATUS
-        // -----------------------------------------------------
+        // =====================================================
 
         const statusEl =
-            document.getElementById("pStatus");
+            document.getElementById(
+                "pStatus"
+            );
 
         if (statusEl) {
+
             statusEl.textContent =
-                formatStatus(projectInfo.status);
+                formatStatus(
+                    projectInfo.status
+                );
 
             statusEl.className =
                 "status-badge " +
-                getStatusBadgeClass(projectInfo.status);
+                getStatusBadgeClass(
+                    projectInfo.status
+                );
         }
 
-        // =====================================================
-        // TEAM DATA
-        // =====================================================
 
-        const rawLeader =
-            project.teamLeader || null;
+        // =====================================================
+        // TEAM MEMBERS
+        // =====================================================
 
         const rawMembers =
-            Array.isArray(project.teamMembers)
+            Array.isArray(
+                project.teamMembers
+            )
                 ? project.teamMembers
                 : [];
 
-        // -----------------------------------------------------
-        // NORMALIZE LEADER
-        // -----------------------------------------------------
 
-        const leader =
-            normalizeMember(rawLeader);
-
-        // -----------------------------------------------------
-        // NORMALIZE MEMBERS
-        // -----------------------------------------------------
+        // =====================================================
+        // NORMALIZE ALL MEMBERS
+        // =====================================================
 
         const members =
             rawMembers
                 .map(normalizeMember)
                 .filter(Boolean);
 
+
+        // =====================================================
+        // FIND LEADER FROM TEAM MEMBERS
+        // =====================================================
+        //
+        // IMPORTANT:
+        // We intentionally find the leader from teamMembers
+        // because the Admin page uses the same method.
+        //
+        // This ensures the leader's phone comes from the
+        // exact same member object.
+        // =====================================================
+
+        let leader =
+            members.find(
+                member =>
+                    member.isLeader === true
+            );
+
+
+        // =====================================================
+        // FALLBACK TO teamLeader
+        // =====================================================
+
+        if (
+            !leader &&
+            project.teamLeader
+        ) {
+
+            leader =
+                normalizeMember(
+                    project.teamLeader
+                );
+        }
+
+
         // =====================================================
         // DEBUG
         // =====================================================
 
         console.log(
-            "STAFF FULL PROJECT RESPONSE:",
-            project
-        );
-
-        console.log(
-            "STAFF RAW LEADER:",
-            rawLeader
-        );
-
-        console.log(
-            "STAFF RAW MEMBERS:",
+            "RAW TEAM MEMBERS:",
             rawMembers
         );
 
         console.log(
-            "STAFF NORMALIZED LEADER:",
-            leader
+            "NORMALIZED MEMBERS:",
+            members
         );
 
         console.log(
-            "STAFF NORMALIZED MEMBERS:",
-            members
+            "FINAL LEADER:",
+            leader
         );
+
 
         // =====================================================
         // LEADER TABLE
@@ -323,40 +518,67 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "pLeaderTableBody"
             );
 
+
         if (leaderTableBody) {
+
             if (leader) {
+
                 leaderTableBody.innerHTML = `
+
                     <tr>
-                        <td>
-                            ${escapeHtml(leader.name)}
-                        </td>
 
                         <td>
-                            ${escapeHtml(leader.phone)}
+                            ${escapeHtml(
+                                leader.name
+                            )}
                         </td>
 
-                        <td>
-                            ${escapeHtml(leader.role)}
-                        </td>
 
                         <td>
-                            ${escapeHtml(leader.studentCode)}
+                            ${escapeHtml(
+                                leader.phone
+                            )}
                         </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                leader.role
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                leader.studentCode
+                            )}
+                        </td>
+
                     </tr>
+
                 `;
+
             } else {
+
                 leaderTableBody.innerHTML = `
+
                     <tr>
+
                         <td
                             colspan="4"
-                            style="text-align:center;"
+                            style="
+                                text-align:center;
+                            "
                         >
                             No leader recorded.
                         </td>
+
                     </tr>
+
                 `;
             }
         }
+
 
         // =====================================================
         // MEMBERS TABLE
@@ -367,48 +589,85 @@ document.addEventListener("DOMContentLoaded", async function () {
                 "pMembersTableBody"
             );
 
+
         if (membersTableBody) {
+
             membersTableBody.innerHTML = "";
 
-            if (members.length > 0) {
-                members.forEach((member) => {
-                    const row =
-                        document.createElement("tr");
 
-                    row.innerHTML = `
-                        <td>
-                            ${escapeHtml(member.name)}
-                        </td>
+            if (
+                members.length > 0
+            ) {
 
-                        <td>
-                            ${escapeHtml(member.phone)}
-                        </td>
+                members.forEach(
+                    member => {
 
-                        <td>
-                            ${escapeHtml(member.role)}
-                        </td>
+                        const row =
+                            document.createElement(
+                                "tr"
+                            );
 
-                        <td>
-                            ${escapeHtml(member.studentCode)}
-                        </td>
-                    `;
 
-                    membersTableBody.appendChild(row);
-                });
+                        row.innerHTML = `
+
+                            <td>
+                                ${escapeHtml(
+                                    member.name
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    member.phone
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    member.role
+                                )}
+                            </td>
+
+
+                            <td>
+                                ${escapeHtml(
+                                    member.studentCode
+                                )}
+                            </td>
+
+                        `;
+
+
+                        membersTableBody.appendChild(
+                            row
+                        );
+                    }
+                );
+
             } else {
+
                 membersTableBody.innerHTML = `
+
                     <tr>
+
                         <td
                             colspan="4"
-                            style="text-align:center;"
+                            style="
+                                text-align:center;
+                            "
                         >
                             No members recorded.
                         </td>
+
                     </tr>
+
                 `;
             }
         }
     }
+
 
     // =========================================================
     // 8. RENDER PROJECT
@@ -416,32 +675,40 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     renderProject();
 
+
     // =========================================================
-    // 9. REVIEW MODAL
+    // 9. REVIEW MODAL ELEMENTS
     // =========================================================
 
     const modal =
-        document.getElementById("reviewModal");
+        document.getElementById(
+            "reviewModal"
+        );
+
 
     const openBtn =
         document.getElementById(
             "openReviewModalBtn"
         );
 
+
     const closeBtn =
         document.getElementById(
             "closeModalBtn"
         );
+
 
     const cancelBtn =
         document.getElementById(
             "cancelModalBtn"
         );
 
+
     const reviewForm =
         document.getElementById(
             "reviewForm"
         );
+
 
     const submitBtn =
         reviewForm
@@ -450,66 +717,89 @@ document.addEventListener("DOMContentLoaded", async function () {
             )
             : null;
 
+
     // =========================================================
-    // 10. CHECK PROJECT STATUS
+    // 10. REVIEW BUTTON STATUS
     // =========================================================
 
     if (
         projectInfo.status !==
         "UnderReview"
     ) {
+
         if (openBtn) {
-            openBtn.disabled = true;
+
+            openBtn.disabled =
+                true;
 
             openBtn.title =
                 "This project isn't open for review right now.";
         }
     }
 
+
     // =========================================================
     // 11. OPEN MODAL
     // =========================================================
 
     if (openBtn) {
+
         openBtn.addEventListener(
             "click",
             () => {
+
                 if (modal) {
-                    modal.classList.add("active");
+
+                    modal.classList.add(
+                        "active"
+                    );
                 }
             }
         );
     }
+
 
     // =========================================================
     // 12. CLOSE MODAL
     // =========================================================
 
     if (closeBtn) {
+
         closeBtn.addEventListener(
             "click",
             () => {
+
                 if (modal) {
-                    modal.classList.remove("active");
+
+                    modal.classList.remove(
+                        "active"
+                    );
                 }
             }
         );
     }
+
 
     // =========================================================
     // 13. CANCEL MODAL
     // =========================================================
 
     if (cancelBtn) {
+
         cancelBtn.addEventListener(
             "click",
             () => {
+
                 if (modal) {
-                    modal.classList.remove("active");
+
+                    modal.classList.remove(
+                        "active"
+                    );
                 }
             }
         );
     }
+
 
     // =========================================================
     // 14. CLICK OUTSIDE MODAL
@@ -518,45 +808,65 @@ document.addEventListener("DOMContentLoaded", async function () {
     window.addEventListener(
         "click",
         function (e) {
+
             if (
                 modal &&
                 e.target === modal
             ) {
-                modal.classList.remove("active");
+
+                modal.classList.remove(
+                    "active"
+                );
             }
         }
     );
+
 
     // =========================================================
     // 15. SUBMIT REVIEW
     // =========================================================
 
     if (reviewForm) {
+
         reviewForm.addEventListener(
             "submit",
             async function (e) {
+
                 e.preventDefault();
+
+
+                // =================================================
+                // SELECTED STATUS
+                // =================================================
 
                 const selectedStatus =
                     document.querySelector(
                         'input[name="reviewStatus"]:checked'
                     )?.value;
 
+
+                // =================================================
+                // COMMENT
+                // =================================================
+
                 const doctorCommentInput =
                     document.getElementById(
                         "doctorComment"
                     );
+
 
                 const doctorComment =
                     doctorCommentInput
                         ? doctorCommentInput.value.trim()
                         : "";
 
-                // -------------------------------------------------
+
+                // =================================================
                 // VALIDATE STATUS
-                // -------------------------------------------------
+                // =================================================
 
                 if (!selectedStatus) {
+
                     alert(
                         "Please select a status decision."
                     );
@@ -564,35 +874,47 @@ document.addEventListener("DOMContentLoaded", async function () {
                     return;
                 }
 
-                // -------------------------------------------------
+
+                // =================================================
                 // VALIDATE COMMENT
-                // -------------------------------------------------
+                // =================================================
 
                 if (!doctorComment) {
+
                     alert(
                         "Please enter a comment before submitting the report."
                     );
 
-                    if (doctorCommentInput) {
+
+                    if (
+                        doctorCommentInput
+                    ) {
+
                         doctorCommentInput.focus();
                     }
+
 
                     return;
                 }
 
-                // -------------------------------------------------
-                // DISABLE SUBMIT
-                // -------------------------------------------------
-
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                }
 
                 // =================================================
-                // SEND REVIEW
+                // DISABLE SUBMIT
+                // =================================================
+
+                if (submitBtn) {
+
+                    submitBtn.disabled =
+                        true;
+                }
+
+
+                // =================================================
+                // SUBMIT REVIEW
                 // =================================================
 
                 try {
+
                     await StaffApi.post(
                         "/reviews",
                         {
@@ -607,35 +929,47 @@ document.addEventListener("DOMContentLoaded", async function () {
                         }
                     );
 
+
                     alert(
                         "Review submitted successfully!"
                     );
 
+
                     if (modal) {
+
                         modal.classList.remove(
                             "active"
                         );
                     }
 
+
                     window.location.reload();
 
+
                 } catch (err) {
+
                     console.error(
                         "SUBMIT REVIEW ERROR:",
                         err
                     );
+
 
                     alert(
                         err.message ||
                         "Failed to submit review."
                     );
 
+
                 } finally {
+
                     if (submitBtn) {
-                        submitBtn.disabled = false;
+
+                        submitBtn.disabled =
+                            false;
                     }
                 }
             }
         );
     }
+
 });
