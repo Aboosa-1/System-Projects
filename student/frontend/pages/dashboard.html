@@ -1,11 +1,15 @@
 <!-- =========================================================
-     Doctor Review / Admin Comment Card
+     FINAL ADMIN REVIEW / COMMENT CARD
      ========================================================= -->
 
 <div
   id="review-card"
-  class="doctor-review-card hidden animate-on-scroll"
+  class="doctor-review-card hidden"
 >
+
+  <!-- =======================================================
+       HEADER
+       ======================================================= -->
 
   <div class="doctor-review-header">
 
@@ -20,7 +24,11 @@
           fill="none"
           stroke="currentColor"
           stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
         >
+
           <path
             d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"
           />
@@ -28,24 +36,28 @@
           <polyline
             points="8 10 10 12 16 7"
           />
+
         </svg>
 
       </div>
 
+
       <div>
 
         <h3>
-          Doctor's Review
+          Final Admin Review
         </h3>
 
         <p>
-          Latest feedback on your project
+          Latest decision and feedback on your project
         </p>
 
       </div>
 
     </div>
 
+
+    <!-- Decision -->
 
     <span
       id="doctor-review-decision"
@@ -57,11 +69,16 @@
   </div>
 
 
+  <!-- =======================================================
+       ADMIN COMMENT
+       ======================================================= -->
+
   <div class="doctor-review-body">
 
     <div class="doctor-review-label">
-      Comment
+      Admin Comment
     </div>
+
 
     <div
       id="doctor-review-comment"
@@ -72,6 +89,10 @@
 
   </div>
 
+
+  <!-- =======================================================
+       REVIEW DATE
+       ======================================================= -->
 
   <div
     id="doctor-review-date"
