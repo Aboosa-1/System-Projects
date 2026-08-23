@@ -9,9 +9,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!projectId) {
         alert("No project selected.");
-        window.location.href = "../dashboard/index.html";
+        window.location.href = "../projects/index.html";
         return;
     }
+
+
+    // =========================================================
+    // ELEMENTS
+    // =========================================================
+
+    const setText = (id, value) => {
+
+        const element = document.getElementById(id);
+
+        if (!element) return;
+
+        if (
+            value !== undefined &&
+            value !== null &&
+            String(value).trim() !== ""
+        ) {
+            element.textContent = value;
+        } else {
+            element.textContent = "—";
+        }
+    };
 
 
     // =========================================================
@@ -23,50 +45,249 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =========================================================
-    // ELEMENTS
+    // LOAD PROJECT
     // =========================================================
 
-    const modal =
-        document.getElementById("reviewModal");
+    async function loadProject() {
 
-    const openBtn =
-        document.getElementById("openReviewModalBtn");
+        try {
 
-    const closeBtn =
-        document.getElementById("closeModalBtn");
+            console.log("Loading project:", projectId);
 
-    const cancelBtn =
-        document.getElementById("cancelModalBtn");
+            // -------------------------------------------------
+            // GET PROJECT
+            // -------------------------------------------------
 
-    const reviewForm =
-        document.getElementById("reviewForm");
+            currentProject = await AdminApi.get(
+                `/projects/${projectId}`
+            );
+
+            console.log(
+                "PROJECT RESPONSE:",
+                currentProject
+            );
+
+
+            if (!currentProject) {
+                throw new Error("Project not found.");
+            }
+
+
+            // -------------------------------------------------
+            // GET TEAM MEMBERS
+            // -------------------------------------------------
+
+            try {
+
+                teamMembers = await AdminApi.get(
+                    `/projects/${currentProject.id}/members`
+                );
+
+                console.log(
+                    "TEAM MEMBERS RESPONSE:",
+                    teamMembers
+                );
+
+                if (!Array.isArray(teamMembers)) {
+                    teamMembers = [];
+                }
+
+            } catch (membersError) {
+
+                console.warn(
+                    "Could not load team members:",
+                    membersError
+                );
+
+                // Try data already returned with project
+
+                if (
+                    Array.isArray(
+                        currentProject.team_members
+                    )
+                ) {
+
+                    teamMembers =
+                        currentProject.team_members;
+
+                } else if (
+                    Array.isArray(
+                        currentProject.members
+                    )
+                ) {
+
+                    teamMembers =
+                        currentProject.members;
+
+                } else {
+
+                    teamMembers = [];
+                }
+            }
+
+
+            // -------------------------------------------------
+            // RENDER
+            // -------------------------------------------------
+
+            renderProjectInfo();
+
+            renderTeamMembers();
+
+            renderStatus();
+
+
+        } catch (error) {
+
+            console.error(
+                "LOAD PROJECT ERROR:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Could not load this project."
+            );
+        }
+    }
 
 
     // =========================================================
-    // SAFE TEXT
+    // RENDER PROJECT INFO
     // =========================================================
 
-    function setText(id, value) {
+    function renderProjectInfo() {
 
-        const element =
-            document.getElementById(id);
+        // -----------------------------------------------------
+        // TEAM
+        // -----------------------------------------------------
 
-        if (!element) {
-            return;
+        setText(
+            "teamDepartment",
+            currentProject.department
+        );
+
+        setText(
+            "teamProgram",
+            currentProject.program_name
+        );
+
+        setText(
+            "teamAcademicYear",
+            currentProject.academic_year
+        );
+
+        setText(
+            "teamRegulation",
+            currentProject.regulation
+        );
+
+        setText(
+            "teamSupervisorDoctor",
+            currentProject.supervisor_doctor
+        );
+
+        setText(
+            "teamSupervisorTa",
+            currentProject.supervisor_ta
+        );
+
+
+        // -----------------------------------------------------
+        // PROJECT
+        // -----------------------------------------------------
+
+        setText(
+            "projectTitleAr",
+            currentProject.title_ar
+        );
+
+
+        const titleEn =
+            document.getElementById(
+                "projectTitleEn"
+            );
+
+        if (titleEn) {
+
+            titleEn.textContent =
+                currentProject.title_en
+                    ? `(${currentProject.title_en})`
+                    : "";
         }
 
-        if (
-            value !== undefined &&
-            value !== null &&
-            String(value).trim() !== ""
-        ) {
 
-            element.textContent = value;
+        setText(
+            "projectIdea",
+            currentProject.idea
+        );
 
-        } else {
+        setText(
+            "projectProblem",
+            currentProject.problem_definition
+        );
 
-            element.textContent = "—";
-        }
+        setText(
+            "projectObjectives",
+            currentProject.objectives
+        );
+
+        setText(
+            "projectContribution",
+            currentProject.expected_contribution
+        );
+    }
+
+
+    // =========================================================
+    // NORMALIZE MEMBER
+    // =========================================================
+
+    function normalizeMember(member) {
+
+        return {
+
+            id:
+                member.id ??
+                member.student_id ??
+                member.studentId ??
+                null,
+
+            name:
+                member.member_name ??
+                member.memberName ??
+                member.full_name ??
+                member.fullName ??
+                member.name ??
+                "—",
+
+            phone:
+                member.member_phone ??
+                member.memberPhone ??
+                member.phone ??
+                "—",
+
+            role:
+                member.track_or_role ??
+                member.trackOrRole ??
+                member.role ??
+                "—",
+
+            studentCode:
+                member.student_code ??
+                member.studentCode ??
+                member.student_id ??
+                member.studentId ??
+                "—",
+
+            isLeader:
+                member.is_leader === true ||
+                member.is_leader === 1 ||
+                member.is_leader === "true" ||
+                member.isLeader === true ||
+                member.isLeader === 1 ||
+                member.isLeader === "true"
+        };
     }
 
 
@@ -86,19 +307,168 @@ document.addEventListener("DOMContentLoaded", function () {
         const div =
             document.createElement("div");
 
-        div.textContent = String(value);
+        div.textContent =
+            String(value);
 
         return div.innerHTML;
     }
 
 
     // =========================================================
-    // FORMAT STATUS
+    // RENDER TEAM MEMBERS
+    // =========================================================
+
+    function renderTeamMembers() {
+
+        const normalizedMembers =
+            teamMembers.map(normalizeMember);
+
+
+        console.log(
+            "NORMALIZED MEMBERS:",
+            normalizedMembers
+        );
+
+
+        // -----------------------------------------------------
+        // FIND LEADER
+        // -----------------------------------------------------
+
+        const leader =
+            normalizedMembers.find(
+                member => member.isLeader
+            );
+
+
+        // -----------------------------------------------------
+        // MEMBER HTML
+        // -----------------------------------------------------
+
+        function buildMemberCells(member) {
+
+            return `
+                <td class="arabic-name">
+                    ${escapeHtml(member.name)}
+
+                    ${
+                        member.isLeader
+                            ? `
+                                <span class="member-leader-tag">
+                                    Leader
+                                </span>
+                              `
+                            : ""
+                    }
+                </td>
+
+                <td>
+                    ${escapeHtml(member.phone)}
+                </td>
+
+                <td>
+                    ${escapeHtml(member.role)}
+                </td>
+
+                <td>
+                    ${escapeHtml(member.studentCode)}
+                </td>
+            `;
+        }
+
+
+        // -----------------------------------------------------
+        // LEADER TABLE
+        // -----------------------------------------------------
+
+        const leaderBody =
+            document.getElementById(
+                "leaderTableBody"
+            );
+
+        if (leaderBody) {
+
+            if (leader) {
+
+                leaderBody.innerHTML = `
+                    <tr>
+                        ${buildMemberCells(leader)}
+                    </tr>
+                `;
+
+            } else {
+
+                leaderBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            style="
+                                text-align:center;
+                                color:#94A3B8;
+                            "
+                        >
+                            No leader recorded.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // MEMBERS TABLE
+        // -----------------------------------------------------
+
+        const membersBody =
+            document.getElementById(
+                "membersTableBody"
+            );
+
+        if (membersBody) {
+
+            const nonLeaderMembers =
+                normalizedMembers.filter(
+                    member => !member.isLeader
+                );
+
+
+            if (nonLeaderMembers.length > 0) {
+
+                membersBody.innerHTML =
+                    nonLeaderMembers
+                        .map(member => `
+                            <tr>
+                                ${buildMemberCells(member)}
+                            </tr>
+                        `)
+                        .join("");
+
+            } else {
+
+                membersBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="4"
+                            style="
+                                text-align:center;
+                                color:#94A3B8;
+                            "
+                        >
+                            No members recorded.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+
+    // =========================================================
+    // STATUS
     // =========================================================
 
     function formatStatus(status) {
 
-        const map = {
+        const statuses = {
 
             Pending:
                 "Pending",
@@ -123,775 +493,66 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         return (
-            map[status] ||
+            statuses[status] ||
             status ||
             "Pending"
         );
     }
 
 
-    // =========================================================
-    // STATUS BADGE CLASS
-    // =========================================================
-
-    function getStatusBadgeClass(status) {
-
-        switch (status) {
-
-            case "Accepted":
-                return "status-success";
-
-            case "Rejected":
-                return "status-error";
-
-            case "MinorRevision":
-            case "MajorRevision":
-                return "status-warning";
-
-            default:
-                return "status-warning";
-        }
-    }
-
-
-    // =========================================================
-    // LOAD PROJECT
-    // =========================================================
-
-    async function loadProject() {
-
-        try {
-
-            console.log(
-                "Loading project:",
-                projectId
-            );
-
-
-            // =====================================================
-            // 1. GET PROJECT
-            // =====================================================
-
-            currentProject =
-                await StaffApi.get(
-                    `/projects/${projectId}`
-                );
-
-
-            console.log(
-                "STAFF PROJECT RESPONSE:",
-                currentProject
-            );
-
-
-            if (!currentProject) {
-
-                throw new Error(
-                    "Project not found."
-                );
-            }
-
-
-            // =====================================================
-            // 2. GET TEAM MEMBERS
-            // =====================================================
-
-            try {
-
-                if (
-                    typeof StaffApi.getMembers === "function"
-                ) {
-
-                    teamMembers =
-                        await StaffApi.getMembers(
-                            currentProject.id
-                        );
-
-                } else {
-
-                    teamMembers =
-                        await StaffApi.get(
-                            `/projects/${currentProject.id}/members`
-                        );
-                }
-
-
-                console.log(
-                    "STAFF TEAM MEMBERS RESPONSE:",
-                    teamMembers
-                );
-
-
-                if (!Array.isArray(teamMembers)) {
-
-                    teamMembers = [];
-                }
-
-            } catch (membersError) {
-
-                console.error(
-                    "LOAD TEAM MEMBERS ERROR:",
-                    membersError
-                );
-
-
-                // =================================================
-                // FALLBACK
-                // =================================================
-
-                if (
-                    Array.isArray(
-                        currentProject.team_members
-                    )
-                ) {
-
-                    teamMembers =
-                        currentProject.team_members;
-
-                } else if (
-                    Array.isArray(
-                        currentProject.teamMembers
-                    )
-                ) {
-
-                    teamMembers =
-                        currentProject.teamMembers;
-
-                } else if (
-                    Array.isArray(
-                        currentProject.members
-                    )
-                ) {
-
-                    teamMembers =
-                        currentProject.members;
-
-                } else {
-
-                    teamMembers = [];
-                }
-            }
-
-
-            // =====================================================
-            // RENDER
-            // =====================================================
-
-            renderProject();
-
-            setupReviewButton();
-
-        } catch (err) {
-
-            console.error(
-                "LOAD PROJECT ERROR:",
-                err
-            );
-
-            alert(
-                err.message ||
-                "Could not load this project."
-            );
-
-            window.location.href =
-                "../dashboard/index.html";
-        }
-    }
-
-
-    // =========================================================
-    // RENDER PROJECT
-    // =========================================================
-
-    function renderProject() {
-
-        // =====================================================
-        // PROJECT INFORMATION
-        // =====================================================
-
-        setText(
-            "pTitle",
-            currentProject.title_en ||
-            currentProject.title_ar
-        );
-
-
-        setText(
-            "pDepartment",
-            currentProject.department
-        );
-
-
-        setText(
-            "pProgram",
-            currentProject.program_name
-        );
-
-
-        setText(
-            "pAcademicYear",
-            currentProject.academic_year
-        );
-
-
-        setText(
-            "pIdea",
-            currentProject.idea
-        );
-
-
-        setText(
-            "pProblem",
-            currentProject.problem_definition
-        );
-
-
-        setText(
-            "pObjectives",
-            currentProject.objectives
-        );
-
-
-        setText(
-            "pContribution",
-            currentProject.expected_contribution
-        );
-
-
-        // =====================================================
-        // SUPERVISORS
-        // =====================================================
-
-        setText(
-            "pSupervisorDoctor",
-            currentProject.supervisor_doctor
-        );
-
-
-        setText(
-            "pSupervisorTa",
-            currentProject.supervisor_ta
-        );
-
-
-        // =====================================================
-        // STATUS
-        // =====================================================
-
-        const status =
-            currentProject.status ||
-            "Pending";
-
-
-        const statusElement =
-            document.getElementById(
-                "pStatus"
-            );
-
-
-        if (statusElement) {
-
-            statusElement.textContent =
-                formatStatus(status);
-
-            statusElement.className =
-                "status-badge " +
-                getStatusBadgeClass(status);
-        }
-
-
-        // =====================================================
-        // TEAM
-        // =====================================================
-
-        renderTeamMembers();
-    }
-
-
-    // =========================================================
-    // RENDER TEAM MEMBERS
-    // =========================================================
-
-    function renderTeamMembers() {
-
-        console.log(
-            "TEAM MEMBERS BEFORE NORMALIZATION:",
-            teamMembers
-        );
-
-
-        const normalizedMembers =
-            teamMembers.map(function (member) {
-
-                return {
-
-                    id:
-                        member.id ??
-                        member.student_id ??
-                        member.studentId ??
-                        null,
-
-
-                    name:
-                        member.member_name ??
-                        member.memberName ??
-                        member.full_name ??
-                        member.fullName ??
-                        member.name ??
-                        "—",
-
-
-                    phone:
-                        member.member_phone ??
-                        member.memberPhone ??
-                        member.phone ??
-                        "—",
-
-
-                    role:
-                        member.track_or_role ??
-                        member.trackOrRole ??
-                        member.role ??
-                        "—",
-
-
-                    studentCode:
-                        member.student_code ??
-                        member.studentCode ??
-                        member.student_id ??
-                        member.studentId ??
-                        "—",
-
-
-                    isLeader:
-                        member.is_leader === true ||
-                        member.is_leader === 1 ||
-                        member.is_leader === "true" ||
-                        member.isLeader === true ||
-                        member.isLeader === 1 ||
-                        member.isLeader === "true"
-                };
-            });
-
-
-        console.log(
-            "NORMALIZED STAFF MEMBERS:",
-            normalizedMembers
-        );
-
-
-        // =====================================================
-        // FIND LEADER
-        // =====================================================
-
-        const leader =
-            normalizedMembers.find(
-                function (member) {
-                    return member.isLeader === true;
-                }
-            );
-
-
-        // =====================================================
-        // LEADER TABLE
-        // =====================================================
-
-        const leaderTableBody =
-            document.getElementById(
-                "pLeaderTableBody"
-            );
-
-
-        if (leaderTableBody) {
-
-            if (leader) {
-
-                leaderTableBody.innerHTML = `
-                    <tr>
-
-                        <td>
-                            ${escapeHtml(leader.name)}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(leader.phone)}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(leader.role)}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(leader.studentCode)}
-                        </td>
-
-                    </tr>
-                `;
-
-            } else {
-
-                leaderTableBody.innerHTML = `
-                    <tr>
-
-                        <td
-                            colspan="4"
-                            style="text-align:center;"
-                        >
-                            No leader recorded.
-                        </td>
-
-                    </tr>
-                `;
-            }
-        }
-
-
-        // =====================================================
-        // MEMBERS TABLE
-        // =====================================================
-
-        const membersTableBody =
-            document.getElementById(
-                "pMembersTableBody"
-            );
-
-
-        if (membersTableBody) {
-
-            if (normalizedMembers.length > 0) {
-
-                membersTableBody.innerHTML =
-                    normalizedMembers
-                        .map(function (member) {
-
-                            return `
-                                <tr>
-
-                                    <td>
-                                        ${escapeHtml(member.name)}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(member.phone)}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(member.role)}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(member.studentCode)}
-                                    </td>
-
-                                </tr>
-                            `;
-
-                        })
-                        .join("");
-
-            } else {
-
-                membersTableBody.innerHTML = `
-                    <tr>
-
-                        <td
-                            colspan="4"
-                            style="text-align:center;"
-                        >
-                            No members recorded.
-                        </td>
-
-                    </tr>
-                `;
-            }
-        }
-    }
-
-
-    // =========================================================
-    // REVIEW BUTTON
-    // =========================================================
-
-    function setupReviewButton() {
-
-        if (!openBtn) {
-            return;
-        }
-
+    function renderStatus() {
 
         const status =
             currentProject.status;
 
 
-        // Staff can review only UnderReview projects
-
-        if (status !== "UnderReview") {
-
-            openBtn.disabled = true;
-
-            openBtn.title =
-                "This project isn't open for review right now.";
-
-            return;
-        }
-
-
-        openBtn.disabled = false;
-
-        openBtn.title = "";
-    }
-
-
-    // =========================================================
-    // OPEN REVIEW MODAL
-    // =========================================================
-
-    if (openBtn) {
-
-        openBtn.addEventListener(
-            "click",
-            function () {
-
-                if (!modal) {
-                    return;
-                }
-
-                modal.classList.add(
-                    "active"
-                );
-            }
-        );
-    }
-
-
-    // =========================================================
-    // CLOSE REVIEW MODAL
-    // =========================================================
-
-    if (closeBtn) {
-
-        closeBtn.addEventListener(
-            "click",
-            function () {
-
-                if (!modal) {
-                    return;
-                }
-
-                modal.classList.remove(
-                    "active"
-                );
-            }
-        );
-    }
-
-
-    // =========================================================
-    // CANCEL REVIEW
-    // =========================================================
-
-    if (cancelBtn) {
-
-        cancelBtn.addEventListener(
-            "click",
-            function () {
-
-                if (!modal) {
-                    return;
-                }
-
-                modal.classList.remove(
-                    "active"
-                );
-            }
-        );
-    }
-
-
-    // =========================================================
-    // CLICK OUTSIDE MODAL
-    // =========================================================
-
-    window.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                modal &&
-                event.target === modal
-            ) {
-
-                modal.classList.remove(
-                    "active"
-                );
-            }
-        }
-    );
-
-
-    // =========================================================
-    // SUBMIT REVIEW
-    // =========================================================
-
-    if (reviewForm) {
-
-        const submitBtn =
-            reviewForm.querySelector(
-                'button[type="submit"]'
+        const statusBadge =
+            document.getElementById(
+                "projectStatusBadge"
             );
 
 
-        reviewForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-
-
-                // =================================================
-                // STATUS
-                // =================================================
-
-                const selectedStatus =
-                    document.querySelector(
-                        'input[name="reviewStatus"]:checked'
-                    )?.value;
+        const statusText =
+            document.getElementById(
+                "projectStatusText"
+            );
 
 
-                // =================================================
-                // COMMENT
-                // =================================================
+        if (statusText) {
 
-                const doctorCommentInput =
-                    document.getElementById(
-                        "doctorComment"
-                    );
+            statusText.textContent =
+                formatStatus(status);
+        }
 
 
-                const doctorComment =
-                    doctorCommentInput
-                        ? doctorCommentInput.value.trim()
-                        : "";
+        if (statusBadge) {
+
+            statusBadge.classList.remove(
+                "status-under-review",
+                "status-under-decision"
+            );
 
 
-                // =================================================
-                // VALIDATION
-                // =================================================
+            if (status === "UnderReview") {
 
-                if (!selectedStatus) {
-
-                    alert(
-                        "Please select a status decision."
-                    );
-
-                    return;
-                }
-
-
-                if (!doctorComment) {
-
-                    alert(
-                        "Please enter a comment before submitting the report."
-                    );
-
-
-                    if (doctorCommentInput) {
-
-                        doctorCommentInput.focus();
-                    }
-
-
-                    return;
-                }
-
-
-                // =================================================
-                // DISABLE BUTTON
-                // =================================================
-
-                if (submitBtn) {
-
-                    submitBtn.disabled = true;
-                }
-
-
-                try {
-
-                    // =================================================
-                    // POST REVIEW
-                    // =================================================
-
-                    await StaffApi.post(
-                        "/reviews",
-                        {
-                            projectId:
-                                currentProject.id,
-
-                            decision:
-                                selectedStatus,
-
-                            comments:
-                                doctorComment
-                        }
-                    );
-
-
-                    alert(
-                        "Review submitted successfully!"
-                    );
-
-
-                    // =================================================
-                    // CLOSE MODAL
-                    // =================================================
-
-                    if (modal) {
-
-                        modal.classList.remove(
-                            "active"
-                        );
-                    }
-
-
-                    // =================================================
-                    // RELOAD DATA
-                    // =================================================
-
-                    await loadProject();
-
-
-                    // Reset form if possible
-
-                    reviewForm.reset();
-
-
-                } catch (err) {
-
-                    console.error(
-                        "SUBMIT REVIEW ERROR:",
-                        err
-                    );
-
-
-                    alert(
-                        err.message ||
-                        "Failed to submit review."
-                    );
-
-                } finally {
-
-                    if (submitBtn) {
-
-                        submitBtn.disabled = false;
-                    }
-                }
+                statusBadge.classList.add(
+                    "status-under-review"
+                );
             }
-        );
+
+
+            if (status === "UnderDecision") {
+
+                statusBadge.classList.add(
+                    "status-under-decision"
+                );
+            }
+        }
     }
 
 
     // =========================================================
-    // INITIAL LOAD
+    // START
     // =========================================================
 
     loadProject();
