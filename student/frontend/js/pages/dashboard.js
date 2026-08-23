@@ -1,3 +1,4 @@
+console.log("🔥 DASHBOARD JS LOADED");
 /**
  * Dashboard Page Logic
  */
