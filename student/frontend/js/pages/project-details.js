@@ -2,15 +2,21 @@
  * Project Details Page Logic
  */
 (function () {
+
+  // =========================================================
+  // Build Team Member Row
+  // =========================================================
   function buildMemberRow(member) {
     const tr = document.createElement('tr');
 
     const nameCell = document.createElement('td');
-    nameCell.textContent = member.name;
+    nameCell.textContent = member.name || '-';
+
     if (member.isLeader) {
       const tag = document.createElement('span');
       tag.className = 'pd-member-leader-tag';
       tag.textContent = 'Leader';
+
       nameCell.append(' ', tag);
     }
 
@@ -24,37 +30,92 @@
     const codeCell = document.createElement('td');
     codeCell.textContent = member.studentCode || '-';
 
-    tr.append(nameCell, roleCell, phoneCell, codeCell);
+    tr.append(
+      nameCell,
+      roleCell,
+      phoneCell,
+      codeCell
+    );
+
     return tr;
   }
 
+
+  // =========================================================
+  // DOM Loaded
+  // =========================================================
   document.addEventListener('DOMContentLoaded', async () => {
+
+    // =======================================================
+    // Check Authentication
+    // =======================================================
     const token = await Storage.getToken();
-    if (!token) { window.location.href = 'login.html'; return; }
 
-    let project = null;
-    try {
-      project = await Api.getMyProject();
-    } catch (err) {
-      if (err.status !== 404) {
-        Animations.showToast(err.message || 'Could not load your project.', 'error');
-      }
-      project = null;
-    }
-
-    if (!project) {
-      document.getElementById('no-project').classList.remove('hidden');
+    if (!token) {
+      window.location.href = 'login.html';
       return;
     }
 
-    let members = [];
+
+    // =======================================================
+    // Get Project
+    // =======================================================
+    let project = null;
+
     try {
-      members = await Api.getMembers(project.id);
+      project = await Api.getMyProject();
+
     } catch (err) {
-      Animations.showToast(err.message || 'Could not load team members.', 'error');
+
+      if (err.status !== 404) {
+        Animations.showToast(
+          err.message || 'Could not load your project.',
+          'error'
+        );
+      }
+
+      project = null;
+    }
+
+
+    // =======================================================
+    // No Project
+    // =======================================================
+    if (!project) {
+
+      const noProject = document.getElementById('no-project');
+
+      if (noProject) {
+        noProject.classList.remove('hidden');
+      }
+
+      return;
+    }
+
+
+    // =======================================================
+    // Get Team Members
+    // =======================================================
+    let members = [];
+
+    try {
+
+      members = await Api.getMembers(project.id);
+
+    } catch (err) {
+
+      Animations.showToast(
+        err.message || 'Could not load team members.',
+        'error'
+      );
+
       members = [];
     }
 
+
+    // =======================================================
+    // Normalize Members
+    // =======================================================
     const normalizedMembers = members.map((m) => ({
       name: m.member_name,
       phone: m.member_phone,
@@ -63,42 +124,291 @@
       isLeader: m.is_leader
     }));
 
-    document.getElementById('project-content').classList.remove('hidden');
-    Animations.slideUp(document.getElementById('project-content'));
 
-    // Populate team info
-    document.getElementById('d-year').textContent = project.academic_year || '-';
-    document.getElementById('d-dept').textContent = project.department || '-';
-    document.getElementById('d-program').textContent = project.program_name || (project.program_id ? String(project.program_id) : '-');
-    document.getElementById('d-supervisor').textContent = project.supervisor_doctor || '-';
-    document.getElementById('d-assistant-supervisor').textContent = project.supervisor_ta || '-';
+    // =======================================================
+    // Show Project Content
+    // =======================================================
+    const projectContent = document.getElementById('project-content');
 
-    // Populate project info
-    document.getElementById('d-title-ar').textContent = project.title_ar || '-';
-    document.getElementById('d-title-en').textContent = project.title_en || '-';
-    document.getElementById('d-regulation').textContent = project.regulation || '-';
-    App.applyStatusBadge(
-      document.getElementById('project-status-badge'),
-      document.getElementById('project-status-label'),
-      project.status
-    );
-    document.getElementById('d-idea').textContent = project.idea || '-';
-    document.getElementById('d-problem').textContent = project.problem_definition || '-';
-    document.getElementById('d-objectives').textContent = project.objectives || '-';
-    document.getElementById('d-contribution').textContent = project.expected_contribution || '-';
-
-    // Populate team leader row
-    const leaderRow = document.getElementById('d-leader-row');
-    const leader = normalizedMembers.find((m) => m.isLeader);
-    if (leader) {
-      leaderRow.appendChild(buildMemberRow(leader));
+    if (projectContent) {
+      projectContent.classList.remove('hidden');
+      Animations.slideUp(projectContent);
     }
 
-    // Populate team members table (leader is shown above in its own row,
-    // and is also included here so the Team Members list reflects the
-    // full team, consistent with the total team member count below).
-    const membersList = document.getElementById('d-members-list');
-    document.getElementById('d-members-count').textContent = normalizedMembers.length;
-    normalizedMembers.forEach(m => membersList.appendChild(buildMemberRow(m)));
+
+    // =======================================================
+    // Team Information
+    // =======================================================
+
+    const yearElement = document.getElementById('d-year');
+
+    if (yearElement) {
+      yearElement.textContent =
+        project.academic_year || '-';
+    }
+
+
+    const departmentElement = document.getElementById('d-dept');
+
+    if (departmentElement) {
+      departmentElement.textContent =
+        project.department || '-';
+    }
+
+
+    const programElement = document.getElementById('d-program');
+
+    if (programElement) {
+      programElement.textContent =
+        project.program_name ||
+        (project.program_id
+          ? String(project.program_id)
+          : '-');
+    }
+
+
+    const supervisorElement =
+      document.getElementById('d-supervisor');
+
+    if (supervisorElement) {
+      supervisorElement.textContent =
+        project.supervisor_doctor || '-';
+    }
+
+
+    const assistantSupervisorElement =
+      document.getElementById('d-assistant-supervisor');
+
+    if (assistantSupervisorElement) {
+      assistantSupervisorElement.textContent =
+        project.supervisor_ta || '-';
+    }
+
+
+    // =======================================================
+    // Project Information
+    // =======================================================
+
+    const titleArElement =
+      document.getElementById('d-title-ar');
+
+    if (titleArElement) {
+      titleArElement.textContent =
+        project.title_ar || '-';
+    }
+
+
+    const titleEnElement =
+      document.getElementById('d-title-en');
+
+    if (titleEnElement) {
+      titleEnElement.textContent =
+        project.title_en || '-';
+    }
+
+
+    const regulationElement =
+      document.getElementById('d-regulation');
+
+    if (regulationElement) {
+      regulationElement.textContent =
+        project.regulation || '-';
+    }
+
+
+    // =======================================================
+    // Project Status
+    // =======================================================
+
+    const statusBadge =
+      document.getElementById('project-status-badge');
+
+    const statusLabel =
+      document.getElementById('project-status-label');
+
+    if (statusBadge && statusLabel) {
+
+      App.applyStatusBadge(
+        statusBadge,
+        statusLabel,
+        project.status
+      );
+    }
+
+
+    // =======================================================
+    // Project Idea
+    // =======================================================
+
+    const ideaElement =
+      document.getElementById('d-idea');
+
+    if (ideaElement) {
+      ideaElement.textContent =
+        project.idea || '-';
+    }
+
+
+    // =======================================================
+    // Problem Definition
+    // =======================================================
+
+    const problemElement =
+      document.getElementById('d-problem');
+
+    if (problemElement) {
+      problemElement.textContent =
+        project.problem_definition || '-';
+    }
+
+
+    // =======================================================
+    // Objectives
+    // =======================================================
+
+    const objectivesElement =
+      document.getElementById('d-objectives');
+
+    if (objectivesElement) {
+      objectivesElement.textContent =
+        project.objectives || '-';
+    }
+
+
+    // =======================================================
+    // Expected Contribution
+    // =======================================================
+
+    const contributionElement =
+      document.getElementById('d-contribution');
+
+    if (contributionElement) {
+      contributionElement.textContent =
+        project.expected_contribution || '-';
+    }
+
+
+    // =======================================================
+    // ADMIN FINAL DECISION
+    // =======================================================
+    // Backend returns:
+    //
+    // finalDecision: {
+    //   admin_decision,
+    //   admin_comments,
+    //   reviewed_at
+    // }
+    //
+    // We display them here for the student.
+    // =======================================================
+
+    const finalDecision =
+      project.finalDecision || null;
+
+
+    // -------------------------------------------------------
+    // Admin Decision
+    // -------------------------------------------------------
+
+    const adminDecisionElement =
+      document.getElementById('d-admin-decision');
+
+    if (adminDecisionElement) {
+
+      adminDecisionElement.textContent =
+        finalDecision?.admin_decision || '-';
+    }
+
+
+    // -------------------------------------------------------
+    // Admin Comments
+    // -------------------------------------------------------
+
+    const adminCommentsElement =
+      document.getElementById('d-admin-comments');
+
+    if (adminCommentsElement) {
+
+      adminCommentsElement.textContent =
+        finalDecision?.admin_comments || '-';
+    }
+
+
+    // -------------------------------------------------------
+    // Reviewed At
+    // -------------------------------------------------------
+
+    const reviewedAtElement =
+      document.getElementById('d-admin-reviewed-at');
+
+    if (reviewedAtElement) {
+
+      if (finalDecision?.reviewed_at) {
+
+        const date = new Date(
+          finalDecision.reviewed_at
+        );
+
+        reviewedAtElement.textContent =
+          date.toLocaleString();
+
+      } else {
+
+        reviewedAtElement.textContent = '-';
+      }
+    }
+
+
+    // =======================================================
+    // Populate Team Leader
+    // =======================================================
+
+    const leaderRow =
+      document.getElementById('d-leader-row');
+
+    const leader =
+      normalizedMembers.find(
+        (m) => m.isLeader
+      );
+
+    if (leaderRow && leader) {
+
+      leaderRow.appendChild(
+        buildMemberRow(leader)
+      );
+    }
+
+
+    // =======================================================
+    // Populate Team Members
+    // =======================================================
+
+    const membersList =
+      document.getElementById('d-members-list');
+
+    const membersCount =
+      document.getElementById('d-members-count');
+
+
+    if (membersCount) {
+
+      membersCount.textContent =
+        normalizedMembers.length;
+    }
+
+
+    if (membersList) {
+
+      membersList.innerHTML = '';
+
+      normalizedMembers.forEach((member) => {
+
+        membersList.appendChild(
+          buildMemberRow(member)
+        );
+      });
+    }
+
   });
+
 })();
