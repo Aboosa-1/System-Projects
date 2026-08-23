@@ -1,4 +1,7 @@
-/* Grid Layout for Project Details — matches the admin portal's project-details page */
+/* =========================================================
+   PROJECT DETAILS GRID
+========================================================= */
+
 .project-details-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
@@ -12,7 +15,11 @@
     gap: 24px;
 }
 
-/* Card General Styling */
+
+/* =========================================================
+   GENERAL CARD
+========================================================= */
+
 .details-card {
     background: #FFFFFF;
     border-radius: 16px;
@@ -29,7 +36,11 @@
     border-bottom: 1px solid #F1F5F9;
 }
 
-/* Project Info List */
+
+/* =========================================================
+   INFO
+========================================================= */
+
 .info-block {
     margin-bottom: 18px;
 }
@@ -52,14 +63,22 @@
     line-height: 1.6;
 }
 
-/* Team Info Horizontal Grid */
+
+/* =========================================================
+   TEAM GRID
+========================================================= */
+
 .team-info-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
 }
 
-/* Tables for Leader & Members */
+
+/* =========================================================
+   TABLE
+========================================================= */
+
 .mini-table {
     width: 100%;
     border-collapse: collapse;
@@ -87,7 +106,11 @@
     border-bottom: 1px solid #F8FAFC;
 }
 
-/* Action Button */
+
+/* =========================================================
+   REVIEW BUTTON
+========================================================= */
+
 .btn-status-action {
     width: 100%;
     background-color: #0D47A1;
@@ -109,6 +132,16 @@
 .btn-status-action:hover {
     background-color: #0A3882;
 }
+
+.btn-status-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
 
 .back-button-wrapper {
     display: flex;
@@ -137,113 +170,494 @@
     transform: translateY(-2px);
 }
 
-/* Fade Up Animation (matches admin portal) */
-.animate-fade-up { opacity: 0; transform: translateY(16px); }
-.fade-up-active { animation: fadeUp 0.5s ease forwards; }
 
-@keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
+/* =========================================================
+   FADE UP
+========================================================= */
+
+.animate-fade-up {
+    opacity: 0;
+    transform: translateY(16px);
 }
 
-/* Modal Styles */
+.fade-up-active {
+    animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(15, 23, 42, 0.5);
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(15, 23, 42, 0.55);
+
     display: none;
     align-items: center;
     justify-content: center;
+
     z-index: 1000;
+
+    padding: 20px;
 }
 
-.modal-overlay.active { display: flex; }
+.modal-overlay.active {
+    display: flex;
+}
+
+
+/* =========================================================
+   MODAL CONTENT
+========================================================= */
 
 .modal-content {
     background: #FFFFFF;
-    border-radius: 16px;
+
+    border-radius: 18px;
+
     width: 100%;
-    max-width: 550px;
+    max-width: 650px;
+
+    max-height: 90vh;
+    overflow-y: auto;
+
     padding: 28px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
 
 .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    align-items: flex-start;
+
+    margin-bottom: 24px;
+
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #E2E8F0;
 }
 
-.close-btn { font-size: 24px; font-weight: bold; cursor: pointer; color: #64748B; }
+.modal-header h2 {
+    margin: 0;
 
-.form-label { display: block; font-weight: 700; margin-bottom: 10px; font-size: 14px; }
+    font-size: 21px;
+    font-weight: 800;
+
+    color: #0F172A;
+}
+
+.modal-subtitle {
+    margin-top: 5px;
+
+    font-size: 13px;
+    color: #64748B;
+}
+
+.close-btn {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #F8FAFC;
+
+    font-size: 25px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    color: #64748B;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+
+/* =========================================================
+   REVIEW SECTIONS
+========================================================= */
+
+.review-section {
+    padding: 20px;
+
+    background: #FFFFFF;
+
+    border: 1px solid #E2E8F0;
+
+    border-radius: 14px;
+
+    margin-bottom: 18px;
+}
+
+.review-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.review-section-header h3 {
+    margin: 0;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    color: #1E293B;
+}
+
+.review-section-header p {
+    margin: 4px 0 0;
+
+    font-size: 12px;
+
+    color: #64748B;
+}
+
+
+/* =========================================================
+   SECTION ICONS
+========================================================= */
+
+.review-section-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+}
+
+.review-section-icon.blue {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+.review-section-icon.purple {
+    background: #F5F3FF;
+    color: #7C3AED;
+}
+
+.review-section-icon.green {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+
+/* =========================================================
+   CURRENT STATUS
+========================================================= */
+
+.current-status-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #F8FAFC;
+
+    border-radius: 10px;
+
+    padding: 14px 16px;
+}
+
+.current-status-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748B;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+
+    font-weight: 700;
+
+    margin-bottom: 9px;
+
+    font-size: 13px;
+
+    color: #334155;
+}
+
+textarea {
+    width: 100%;
+
+    min-height: 120px;
+
+    padding: 13px 14px;
+
+    border-radius: 10px;
+
+    border: 1px solid #CBD5E1;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    outline: none;
+
+    resize: vertical;
+
+    box-sizing: border-box;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+textarea:focus {
+    border-color: #0D47A1;
+
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.08);
+}
+
+textarea::placeholder {
+    color: #94A3B8;
+}
+
+
+/* =========================================================
+   RADIO OPTIONS
+========================================================= */
 
 .radio-options {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 .radio-card {
     display: flex;
+
     align-items: center;
+
     gap: 10px;
-    padding: 12px 16px;
+
+    padding: 13px 15px;
+
     border: 1px solid #CBD5E1;
+
     border-radius: 10px;
+
     cursor: pointer;
+
     font-weight: 600;
+
+    font-size: 14px;
+
+    color: #334155;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
-.radio-card:hover { background: #F8FAFC; }
+.radio-card:hover {
+    background: #F8FAFC;
+}
 
-textarea {
+.radio-card input {
+    accent-color: #0D47A1;
+}
+
+.radio-card.success:hover {
+    border-color: #22C55E;
+}
+
+.radio-card.warning:hover {
+    border-color: #F59E0B;
+}
+
+.radio-card.danger:hover {
+    border-color: #EF4444;
+}
+
+
+/* =========================================================
+   SEND BUTTONS
+========================================================= */
+
+.btn-send {
     width: 100%;
-    padding: 12px;
+
+    border: none;
+
     border-radius: 10px;
-    border: 1px solid #CBD5E1;
-    font-family: inherit;
-    outline: none;
+
+    padding: 12px 16px;
+
+    color: #FFFFFF;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    transition: all 0.2s ease;
 }
+
+.btn-send:hover {
+    transform: translateY(-1px);
+}
+
+.btn-send:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* Staff */
+
+.btn-staff {
+    background: #7C3AED;
+}
+
+.btn-staff:hover {
+    background: #6D28D9;
+}
+
+
+/* Students */
+
+.btn-student {
+    background: #059669;
+}
+
+.btn-student:hover {
+    background: #047857;
+}
+
+
+/* =========================================================
+   FINAL DECISION SECTION
+========================================================= */
+
+.final-decision-section {
+    border-color: #D1FAE5;
+
+    background: #FAFFFC;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
 
 .modal-footer {
     display: flex;
+
     justify-content: flex-end;
+
     gap: 12px;
-    margin-top: 20px;
+
+    margin-top: 5px;
 }
 
-/* ─── RESPONSIVE ─── */
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
 @media (max-width: 1024px) {
+
     .project-details-grid {
         grid-template-columns: 1fr;
     }
+
     .team-info-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
 }
 
+
 @media (max-width: 480px) {
+
     .team-info-grid {
         grid-template-columns: 1fr;
     }
+
     .details-card {
         padding: 18px;
     }
+
     .btn-back {
         width: 100%;
         justify-content: center;
         padding: 12px 24px;
     }
+
+    .modal-overlay {
+        padding: 10px;
+    }
+
     .modal-content {
         padding: 20px;
+        max-height: 95vh;
     }
-    .modal-footer {
-        flex-direction: column-reverse;
+
+    .review-section {
+        padding: 16px;
     }
-    .modal-footer .btn {
-        width: 100%;
+
+    .review-section-header {
+        align-items: flex-start;
     }
+
+    .current-status-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
 }
